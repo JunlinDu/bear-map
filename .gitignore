@@ -1,3 +1,4 @@
 img/
 target/
 *.png
+.idea/vcs.xml
