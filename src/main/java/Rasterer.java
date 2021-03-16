@@ -18,10 +18,13 @@ public class Rasterer {
         lonCoverage = MapServer.ROOT_LRLON - MapServer.ROOT_ULLON;
         latCoverage = MapServer.ROOT_ULLAT - MapServer.ROOT_LRLAT;
         zoomLevelLonDPPs = new ArrayList<Double>();
+        // [3.4332275390625E-4, 1.71661376953125E-4, 8.58306884765625E-5,
+        // 4.291534423828125E-5, 2.1457672119140625E-5, 1.0728836059570312E-5,
+        // 5.364418029785156E-6, 2.682209014892578E-6]
 
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0, l = 1; i < 8; i++, l*=2) {
             // calculates and initiates an array list for the LonDPP of 8 zoom levels
-            zoomLevelLonDPPs.add(lonCoverage / ((i + 1) * MapServer.TILE_SIZE));
+            zoomLevelLonDPPs.add(lonCoverage / (l * MapServer.TILE_SIZE));
         }
         System.out.println(zoomLevelLonDPPs);
     }
