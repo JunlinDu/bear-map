@@ -42,11 +42,27 @@ public class Rasterer {
      *                    forget to set this to true on success! <br>
      */
     public Map<String, Object> getMapRaster(Map<String, Double> params) {
-        // System.out.println(params);
+
+        // prints out the HTTP GET request's query parameters
+        System.out.println(params);
+        // TODO print out the LonDPP of the query Box
+        System.out.println(params.get("lrlon"));
+        System.out.println(params.get("ullon"));
+        System.out.println(params.get("w"));
+        System.out.println(calcQueryLonDPP(params.get("lrlon"), params.get("ullon"), params.get("w")));
+
         Map<String, Object> results = new HashMap<>();
-        System.out.println("Since you haven't implemented getMapRaster, nothing is displayed in "
-                           + "your browser.");
         return results;
+    }
+
+    /**
+     * Calculates the longitudinal distance per pixel (LonDPP) of the query box.
+     * @param lrLon lower right longitude
+     * @param ulLon upper left longitude
+     * @param width width of the query box in pixels
+     * @return the lonDPP of the query box */
+    private double calcQueryLonDPP (double lrLon, double ulLon, double width) {
+        return (lrLon - ulLon) / width;
     }
 
 }
