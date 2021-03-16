@@ -1,5 +1,6 @@
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
 
 /**
  * This class provides all code necessary to take a query box and produce
@@ -9,8 +10,20 @@ import java.util.Map;
  */
 public class Rasterer {
 
+    private double lonCoverage;
+    private double latCoverage;
+    private ArrayList<Double>  zoomLevelLonDPPs;
+
     public Rasterer() {
-        // YOUR CODE HERE
+        lonCoverage = MapServer.ROOT_LRLON - MapServer.ROOT_ULLON;
+        latCoverage = MapServer.ROOT_ULLAT - MapServer.ROOT_LRLAT;
+        zoomLevelLonDPPs = new ArrayList<Double>();
+
+        for (int i = 0; i < 8; i++) {
+            // calculates and initiates an array list for the LonDPP of 8 zoom levels
+            zoomLevelLonDPPs.add(lonCoverage / ((i + 1) * MapServer.TILE_SIZE));
+        }
+        System.out.println(zoomLevelLonDPPs);
     }
 
     /**
@@ -49,20 +62,10 @@ public class Rasterer {
         System.out.println(params.get("lrlon"));
         System.out.println(params.get("ullon"));
         System.out.println(params.get("w"));
-        System.out.println(calcQueryLonDPP(params.get("lrlon"), params.get("ullon"), params.get("w")));
+        System.out.println((params.get("lrlon") - params.get("ullon"))/ params.get("w"));
 
         Map<String, Object> results = new HashMap<>();
         return results;
-    }
-
-    /**
-     * Calculates the longitudinal distance per pixel (LonDPP) of the query box.
-     * @param lrLon lower right longitude
-     * @param ulLon upper left longitude
-     * @param width width of the query box in pixels
-     * @return the lonDPP of the query box */
-    private double calcQueryLonDPP (double lrLon, double ulLon, double width) {
-        return (lrLon - ulLon) / width;
     }
 
 }
