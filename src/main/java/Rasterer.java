@@ -23,10 +23,23 @@ public class Rasterer {
         // 5.364418029785156E-6, 2.682209014892578E-6]
 
         for (int i = 0, l = 1; i < 8; i++, l*=2) {
-            // calculates and initiates an array list for the LonDPP of 8 zoom levels
+            // calculates and initiates an array list for the LonDPP of 8 levels of zoom
             zoomLevelLonDPPs.add(lonCoverage / (l * MapServer.TILE_SIZE));
         }
-        System.out.println(zoomLevelLonDPPs);
+    }
+
+    /** Takes the query LonDPP and returns the level of depth corresponding to the query
+     *
+     * @param queryLonDPP The LonDPP of the query box
+     * @return the corresponding level of depth
+     */
+    private int calcDepth(double queryLonDPP) {
+        int i = 0;
+        for (double ldpp : zoomLevelLonDPPs) {
+            if (ldpp < queryLonDPP || i == zoomLevelLonDPPs.size() - 1) break;
+            i++;
+        }
+        return i;
     }
 
     /**
@@ -62,11 +75,9 @@ public class Rasterer {
         // prints out the HTTP GET request's query parameters
         System.out.println(params);
         // TODO print out the LonDPP of the query Box
-        System.out.println(params.get("lrlon"));
-        System.out.println(params.get("ullon"));
-        System.out.println(params.get("w"));
-        System.out.println((params.get("lrlon") - params.get("ullon"))/ params.get("w"));
-
+        double lonDPP  = (params.get("lrlon") - params.get("ullon"))/ params.get("w");
+        System.out.println("LonDPP: " + lonDPP);
+        System.out.println("Depth: " + String.valueOf(calcDepth(lonDPP)));
         Map<String, Object> results = new HashMap<>();
         return results;
     }
