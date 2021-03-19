@@ -12,6 +12,7 @@ public class Rasterer {
 
     private double lonCoverage;
     private double latCoverage;
+
     /*
      * For reference and testing purposes. LonDPP of 8 levels of tile:
      * [3.4332275390625E-4, 1.71661376953125E-4, 8.58306884765625E-5, 4.291534423828125E-5,
@@ -30,6 +31,42 @@ public class Rasterer {
         }
     }
 
+
+    /**
+     * Takes a user query and finds the grid of images that best matches the query. These
+     * images will be combined into one big image (rastered) by the front end. <br>
+     *
+     * @param params Map of the HTTP GET request's query parameters - the query box and
+     *               the user viewport width and height.
+     *
+     * @return A map of results for the front end as specified: <br>
+     * "render_grid"   : String[][], the files to display. <br>
+     * "raster_ul_lon" : Number, the bounding upper left longitude of the rastered image. <br>
+     * "raster_ul_lat" : Number, the bounding upper left latitude of the rastered image. <br>
+     * "raster_lr_lon" : Number, the bounding lower right longitude of the rastered image. <br>
+     * "raster_lr_lat" : Number, the bounding lower right latitude of the rastered image. <br>
+     * "depth"         : Number, the depth of the nodes of the rastered image <br>
+     * "query_success" : Boolean, whether the query was able to successfully complete <br>
+     */
+    public Map<String, Object> getMapRaster(Map<String, Double> params) {
+
+        // prints out the HTTP GET request's query parameters
+        System.out.println(params);
+
+        double lonDPP  = (params.get("lrlon") - params.get("ullon"))/ params.get("w");
+        System.out.println("LonDPP: " + lonDPP);
+        System.out.println("Depth: " + String.valueOf(calcDepth(lonDPP)));
+        Map<String, Object> results = new HashMap<>();
+        return results;
+    }
+
+
+    private String[][] constructTile(Map<String, Double> params) {
+
+        return null;
+    }
+
+
     /** Takes the query LonDPP and returns the level of depth corresponding to the query
      *
      * @param queryLonDPP The LonDPP of the query box
@@ -43,6 +80,7 @@ public class Rasterer {
         }
         return i;
     }
+
 
     /**
      * This function search for the longitude or latitude of the appropriate
@@ -86,9 +124,10 @@ public class Rasterer {
         return lowerBound;
     }
 
+
     /**
-    * This function returns the longitudinal and latitudinal
-    * coordinates of a tile.
+    * This function returns the upper left
+     * longitudinal and latitudinal coordinates of a tile.
     *
     * @param depth current level of zoom
     * @param longitude requested longitude
@@ -97,54 +136,36 @@ public class Rasterer {
      * @return a double array: [tileUlLon, tileUlLat]
     * */
     private double[] calcTileULCoor(int depth, double longitude, double latitude) {
-        // The longitudinal/latitudinal distance a tile covers
-        double tileCoverage = this.latCoverage / Math.pow(2, depth);
+        // The latitudinal distance covered by a tile
+        double tileLatCoverage = this.latCoverage / Math.pow(2, depth);
         return new double[]{
                 searchSingleDimCoord(depth, longitude, MapServer.ROOT_ULLON, MapServer.ROOT_LRLON),
                 searchSingleDimCoord(depth, latitude, MapServer.ROOT_LRLAT, MapServer.ROOT_ULLAT)
-                        + tileCoverage};
+                        + tileLatCoverage};
     }
 
-    /*
-     * [raster_lr_lon, raster_lr_lat]*/
-    private int calcLRTileCoord() {
 
-        return 0;
-    }
+    private int[] identifyFileNum(int depth, double tileUlLon, double tileUlLat) {
+        int x = 0;
+        int y = 0;
+        double numOfTiles = Math.pow(2, depth);
+        double longDisFromBound = tileUlLon - MapServer.ROOT_ULLON;
+        double latDisFromBound = MapServer.ROOT_ULLAT - tileUlLat;
 
-    private String[][] constructTile() {
-        return null;
-    }
+        if (longDisFromBound != 0){
+//            System.out.println(Math.round((longDisFromBound / this.lonCoverage) * numOfTiles));
+//            System.out.println((longDisFromBound / this.lonCoverage) * numOfTiles);
+            x = (int) ((longDisFromBound / this.lonCoverage) * numOfTiles);
+        }
 
-    /**
-     * Takes a user query and finds the grid of images that best matches the query. These
-     * images will be combined into one big image (rastered) by the front end. <br>
-     *
-     *
-     * @param params Map of the HTTP GET request's query parameters - the query box and
-     *               the user viewport width and height.
-     *
-     * @return A map of results for the front end as specified: <br>
-     * "render_grid"   : String[][], the files to display. <br>
-     * "raster_ul_lon" : Number, the bounding upper left longitude of the rastered image. <br>
-     * "raster_ul_lat" : Number, the bounding upper left latitude of the rastered image. <br>
-     * "raster_lr_lon" : Number, the bounding lower right longitude of the rastered image. <br>
-     * "raster_lr_lat" : Number, the bounding lower right latitude of the rastered image. <br>
-     * "depth"         : Number, the depth of the nodes of the rastered image <br>
-     * "query_success" : Boolean, whether the query was able to successfully complete; don't
-     *                    forget to set this to true on success! <br>
-     */
-    public Map<String, Object> getMapRaster(Map<String, Double> params) {
+        if (latDisFromBound != 0) {
+//            System.out.println(Math.round((latDisFromBound / this.latCoverage) * numOfTiles));
+//            System.out.println((latDisFromBound / this.latCoverage) * numOfTiles);
 
-        // prints out the HTTP GET request's query parameters
-        System.out.println(params);
+            y = (int) ((latDisFromBound / this.latCoverage) * numOfTiles) + 1;
+        }
 
-
-        double lonDPP  = (params.get("lrlon") - params.get("ullon"))/ params.get("w");
-        System.out.println("LonDPP: " + lonDPP);
-        System.out.println("Depth: " + String.valueOf(calcDepth(lonDPP)));
-        Map<String, Object> results = new HashMap<>();
-        return results;
+        return new int[] {x, y};
     }
 
 
@@ -180,16 +201,25 @@ public class Rasterer {
         double[] coord = rasterer.calcTileULCoor(1, -122.3027284165759, 37.88708748276975);
         System.out.println(coord[0]); //expected: -122.2998046875
         System.out.println(coord[1]); //expected: 37.892195547244356
+        int[] aa = rasterer.identifyFileNum(1, -122.2998046875, 37.892195547244356);
+        System.out.println(aa[0]);
+        System.out.println(aa[1]);
 
         System.out.println("###################");
         coord = rasterer.calcTileULCoor(7, -122.24163047377972, 37.87655856892288);
         System.out.println(coord[0]); //expected: -122.24212646484375
         System.out.println(coord[1]); //expected: 37.87701580361881
+        aa = rasterer.identifyFileNum(7, -122.24212646484375, 37.87701580361881);
+        System.out.println(aa[0]);
+        System.out.println(aa[1]);
 
         System.out.println("###################");
         coord = rasterer.calcTileULCoor(2, -122.30410170759153, 37.870213571328854);
         System.out.println(coord[0]); //expected: -122.2998046875
         System.out.println(coord[1]); //expected: 37.87484726881516
+        aa = rasterer.identifyFileNum(2, -122.2998046875, 37.87484726881516);
+        System.out.println(aa[0]);
+        System.out.println(aa[1]);
     }
 
 }
