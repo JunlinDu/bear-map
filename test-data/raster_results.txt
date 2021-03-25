@@ -1,7 +1,7 @@
 # order of params: raster_ul_lon, raster_ul_lat, raster_lr_lon, raster_lr_lat, depth, query_success, render_grid
 # render_grid: two numbers indicate numRows then numCols
 # render_grid: what follows is all of first row, then all of second row, etc.
-# DO NOT MODIFY FILE
+#
 -122.244873046875
 37.879184338422455
 -122.2174072265625

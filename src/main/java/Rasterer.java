@@ -1,4 +1,3 @@
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
@@ -58,6 +57,7 @@ public class Rasterer {
         return constructResult(params);
     }
 
+    int i = 0;
     private Map<String, Object> constructResult(Map<String, Double> params) {
         Map<String, Object> results = new HashMap<>();
 
@@ -65,12 +65,20 @@ public class Rasterer {
 
         double[] uLTileULCoor = calcTileULCoor(depth, params.get("ullon"), params.get("ullat"));
         double[] lRTileULCoor = calcTileULCoor(depth, params.get("lrlon"), params.get("lrlat"));
+        double[] lRTileLRCoor = new double[]
+                {lRTileULCoor[0] + this.tileLonCoverage[depth],
+                lRTileULCoor[1] - this.tileLatCoverage[depth]};
+
+        System.out.println(i);
+        System.out.println("depth: " + depth);
+        i++;
+
         // test for tile construction
         // System.out.println(Arrays.deepToString(constructTile(depth, uLTileULCoor, lRTileULCoor)));
         results.put("raster_ul_lon", uLTileULCoor[0]);
         results.put("depth", depth);
-//        results.put("raster_lr_lon", -122.2119140625);
-//        results.put("raster_lr_lat", 37.82280243352756);
+        results.put("raster_lr_lon", lRTileLRCoor[0]);
+        results.put("raster_lr_lat", lRTileLRCoor[1]);
         results.put("render_grid", constructTile(depth, uLTileULCoor, lRTileULCoor));
         results.put("raster_ul_lat", uLTileULCoor[1]);
         results.put("query_success", true);
@@ -107,8 +115,6 @@ public class Rasterer {
 
         return result;
     }
-
-
 
 
     /** Takes the query LonDPP and returns the level of depth corresponding to the query
