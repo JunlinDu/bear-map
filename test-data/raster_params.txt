@@ -1,5 +1,5 @@
 # order of params: ullon, ullat, lrlon, lrlat, w, h.
-# DO NOT MODIFY FILE
+#
 -122.23995662778569
 37.877266154010954
 -122.22275132672245

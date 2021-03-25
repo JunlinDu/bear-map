@@ -20,8 +20,8 @@ import static org.junit.Assert.assertTrue;
 public class TestRasterer {
     private static final double DOUBLE_THRESHOLD = 0.000000001;
     private static DecimalFormat df2 = new DecimalFormat(".#########");
-    private static final String PARAMS_FILE = "raster_params.txt";
-    private static final String RESULTS_FILE = "raster_results.txt";
+    private static final String PARAMS_FILE = "test-data/raster_params.txt";
+    private static final String RESULTS_FILE = "test-data/raster_results.txt";
     private static final int NUM_TESTS = 8;
     private static Rasterer rasterer;
 
