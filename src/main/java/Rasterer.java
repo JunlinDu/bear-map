@@ -13,6 +13,8 @@ public class Rasterer {
 
     private double lonCoverage;
     private double latCoverage;
+    private double[] tileLonCoverage;
+    private double[] tileLatCoverage;
 
     /*
      * For reference and testing purposes. LonDPP of 8 levels of tile:
@@ -25,17 +27,20 @@ public class Rasterer {
         lonCoverage = MapServer.ROOT_LRLON - MapServer.ROOT_ULLON;
         latCoverage = MapServer.ROOT_ULLAT - MapServer.ROOT_LRLAT;
         zoomLevelLonDPPs = new ArrayList<Double>();
+        tileLonCoverage = new double[8];
+        tileLatCoverage = new double[8];
 
         for (int i = 0, l = 1; i < 8; i++, l*=2) {
             // calculates and initiates an array list for the LonDPP of 8 levels of zoom
             zoomLevelLonDPPs.add(lonCoverage / (l * MapServer.TILE_SIZE));
+            tileLonCoverage[i] = lonCoverage / l;
+            tileLatCoverage[i] = latCoverage / l;
         }
     }
 
 
     /**
-     * Takes a user query and finds the grid of images that best matches the query. These
-     * images will be combined into one big image (rastered) by the front end. <br>
+     * Takes a user query and finds the grid of images that best matches the query.
      *
      * @param params Map of the HTTP GET request's query parameters - the query box and
      *               the user viewport width and height.
@@ -50,9 +55,6 @@ public class Rasterer {
      * "query_success" : Boolean, whether the query was able to successfully complete <br>
      */
     public Map<String, Object> getMapRaster(Map<String, Double> params) {
-        // prints out the HTTP GET request's query parameters
-        System.out.println(params);
-
         return constructResult(params);
     }
 
@@ -63,14 +65,33 @@ public class Rasterer {
 
         double[] uLTileULCoor = calcTileULCoor(depth, params.get("ullon"), params.get("ullat"));
         double[] lRTileULCoor = calcTileULCoor(depth, params.get("lrlon"), params.get("lrlat"));
-
-        System.out.println(Arrays.deepToString(constructTile(depth, uLTileULCoor, lRTileULCoor)));
-//        System.out.println(constructTile(depth, uLTileULCoor, lRTileULCoor).length);
+        // test for tile construction
+        // System.out.println(Arrays.deepToString(constructTile(depth, uLTileULCoor, lRTileULCoor)));
+        results.put("raster_ul_lon", uLTileULCoor[0]);
+        results.put("depth", depth);
+//        results.put("raster_lr_lon", -122.2119140625);
+//        results.put("raster_lr_lat", 37.82280243352756);
+        results.put("render_grid", constructTile(depth, uLTileULCoor, lRTileULCoor));
+        results.put("raster_ul_lat", uLTileULCoor[1]);
+        results.put("query_success", true);
 
         return results;
     }
 
 
+    /** This function takes the current depth/level of zoom and two edge tile coordinates and
+     * returns a two-dimensional array of Strings representing the tile files to be retrieved
+     * and displayed to the user based on the user's request.
+     *
+     * @param depth an int value representing the current depth/level of zoom
+     * @param uLTileULCoor a double array containing the upper left coordinate of the tile
+     *                     located on the upper left corner of the rastered image
+     * @param lRTileULCoor a double array containing the lower right coordinate of the tile
+     *                     located on the lower right corner of the rastered image
+     *
+     * @return result: String[][], files to be retrieved from the database and displayed to
+     *                 the user.
+     * */
     private String[][] constructTile(int depth, double[] uLTileULCoor, double[] lRTileULCoor) {
         int[] uLTile = identifyFileNum(depth, uLTileULCoor[0], uLTileULCoor[1]),
                 lRTile = identifyFileNum(depth, lRTileULCoor[0], lRTileULCoor[1]);
@@ -86,6 +107,8 @@ public class Rasterer {
 
         return result;
     }
+
+
 
 
     /** Takes the query LonDPP and returns the level of depth corresponding to the query
@@ -124,24 +147,19 @@ public class Rasterer {
         if (depth != 0) {
             double mid = lowerBound + (upperBound - lowerBound) / 2;
 
-            // If the coordinate happens to coincide with the mid point
-            // This may happen very rarely.
+            // If the coordinate happens to coincide with the mid point. This may happen very rarely.
             if (coordinate == mid) return mid;
 
-            // If the coordinate is smaller than the mid point, i.e.
-            // is on the left side of the imaginary array.
+            // If the coordinate is smaller than the mid point, i.e. is on the left side of the imaginary array.
             if (coordinate < mid)
                 return searchSingleDimCoord(depth - 1, coordinate, lowerBound, mid);
 
-            // The only possibility left is that the coordinate is
-            // greater that the mid point.
+            // The only possibility left is that the coordinate is greater that the mid point.
             return searchSingleDimCoord(depth - 1, coordinate, mid, upperBound);
         }
 
-        // This will be the coordinate of the rastered tile.
-        // The coordinate is the greatest of an array (imaginary)
-        // of tiles that is smaller than the given coordinate,
-        // thus have the requested region covered.
+        // This will be the coordinate of the rastered tile. The coordinate is the greatest of an array (imaginary)
+        // of tiles that is smaller than the given coordinate, thus have the requested region covered.
         return lowerBound;
     }
 
@@ -158,14 +176,13 @@ public class Rasterer {
      * @return a double array: [tileUlLon, tileUlLat]
     * */
     private double[] calcTileULCoor(int depth, double longitude, double latitude) {
-        // The latitudinal distance covered by a tile
-        double tileLatCoverage = this.latCoverage / Math.pow(2, depth);
+
         return new double[]{
                 searchSingleDimCoord
                         (depth, longitude, MapServer.ROOT_ULLON, MapServer.ROOT_LRLON),
                 searchSingleDimCoord
                         (depth, latitude, MapServer.ROOT_LRLAT, MapServer.ROOT_ULLAT)
-                        + tileLatCoverage};
+                        + this.tileLatCoverage[depth]};
     }
 
 
