@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
@@ -49,22 +50,44 @@ public class Rasterer {
      * "query_success" : Boolean, whether the query was able to successfully complete <br>
      */
     public Map<String, Object> getMapRaster(Map<String, Double> params) {
-
         // prints out the HTTP GET request's query parameters
         System.out.println(params);
 
-        double lonDPP  = (params.get("lrlon") - params.get("ullon"))/ params.get("w");
-        System.out.println("LonDPP: " + lonDPP);
-        System.out.println("Depth: " + String.valueOf(calcDepth(lonDPP)));
+        return constructResult(params);
+    }
+
+    private Map<String, Object> constructResult(Map<String, Double> params) {
         Map<String, Object> results = new HashMap<>();
+        int depth = calcDepth((params.get("lrlon") - params.get("ullon"))/ params.get("w"));
+
+        double[] uLTileULCoor = calcTileULCoor(depth, params.get("ullon"), params.get("ullat"));
+        double[] lRTileULCoor = calcTileULCoor(depth, params.get("lrlon"), params.get("lrlat"));
+
+//        System.out.println(Arrays.deepToString(constructTile(depth, uLTileULCoor, lRTileULCoor)));
+//        System.out.println(constructTile(depth, uLTileULCoor, lRTileULCoor).length);
+
         return results;
     }
 
 
-    private String[][] constructTile(Map<String, Double> params) {
-
-        return null;
-    }
+//    private String[][] constructTile(int depth, double[] uLTileULCoor, double[] lRTileULCoor) {
+//        int[] uLTile = identifyFileNum(depth, uLTileULCoor[0], uLTileULCoor[1]);
+//        int[] lRTile = identifyFileNum(depth, lRTileULCoor[0], lRTileULCoor[1]);
+//        System.out.println(lRTile[0]);
+//        System.out.println(lRTile[1]);
+//
+//        int numOfHorizontalTile = lRTile[0] - uLTile[0] + 1;
+//        int numOfVerticalTile = lRTile[1] - uLTile[1] + 1;
+//
+//        String [][] result = new String[numOfHorizontalTile][numOfVerticalTile];
+//        for (int y = 0; y < numOfVerticalTile - 1; y++) {
+//            for (int x = 0; x < numOfHorizontalTile - 1; x++) {
+//                result[y][x] = "d" + depth + "_x" + String.valueOf(uLTile[0] + x) + "_y" + String.valueOf(uLTile[1] + y) + ".png";
+//            }
+//        }
+//
+//        return result;
+//    }
 
 
     /** Takes the query LonDPP and returns the level of depth corresponding to the query
@@ -126,11 +149,12 @@ public class Rasterer {
 
 
     /**
-    * This function returns the upper left
-     * longitudinal and latitudinal coordinates of a tile.
-    *
-    * @param depth current level of zoom
-    * @param longitude requested longitude
+    * This function returns the upper left longitudinal and latitudinal
+     * coordinates of a tile that covers the requested coordinate in the
+     * current zoom level.
+     *
+     * @param depth current level of zoom
+     * @param longitude requested longitude
      * @param latitude requested latitude
      *
      * @return a double array: [tileUlLon, tileUlLat]
@@ -139,12 +163,24 @@ public class Rasterer {
         // The latitudinal distance covered by a tile
         double tileLatCoverage = this.latCoverage / Math.pow(2, depth);
         return new double[]{
-                searchSingleDimCoord(depth, longitude, MapServer.ROOT_ULLON, MapServer.ROOT_LRLON),
-                searchSingleDimCoord(depth, latitude, MapServer.ROOT_LRLAT, MapServer.ROOT_ULLAT)
+                searchSingleDimCoord
+                        (depth, longitude, MapServer.ROOT_ULLON, MapServer.ROOT_LRLON),
+                searchSingleDimCoord
+                        (depth, latitude, MapServer.ROOT_LRLAT, MapServer.ROOT_ULLAT)
                         + tileLatCoverage};
     }
 
 
+    /**
+     * This function identifies the x and y axis of the tile image based on
+     * a given longitude and latitude.
+     *
+     * @param depth current zoom level
+     * @param tileUlLon the longitude of a tile's upper left
+     * @param tileUlLat the latitude of a tile's upper left
+     *
+     * @return [x, y]
+     * */
     private int[] identifyFileNum(int depth, double tileUlLon, double tileUlLat) {
         int x = 0;
         int y = 0;
@@ -153,16 +189,12 @@ public class Rasterer {
         double latDisFromBound = MapServer.ROOT_ULLAT - tileUlLat;
 
         if (longDisFromBound != 0){
-//            System.out.println(Math.round((longDisFromBound / this.lonCoverage) * numOfTiles));
-//            System.out.println((longDisFromBound / this.lonCoverage) * numOfTiles);
-            x = (int) ((longDisFromBound / this.lonCoverage) * numOfTiles);
+            x = (int) Math.round((longDisFromBound / this.lonCoverage) * numOfTiles);
         }
 
         if (latDisFromBound != 0) {
-//            System.out.println(Math.round((latDisFromBound / this.latCoverage) * numOfTiles));
-//            System.out.println((latDisFromBound / this.latCoverage) * numOfTiles);
 
-            y = (int) ((latDisFromBound / this.latCoverage) * numOfTiles) + 1;
+            y = (int) Math.round((latDisFromBound / this.latCoverage) * numOfTiles);
         }
 
         return new int[] {x, y};
@@ -172,54 +204,34 @@ public class Rasterer {
     /** The Main function is used for testing purposes.*/
     public static void main (String[] args) {
         Rasterer rasterer = new Rasterer();
-        double result = rasterer.searchSingleDimCoord(4, 4.2, 0.0, 16.0);
-        System.out.println(result); // 4
-        result = rasterer.searchSingleDimCoord(4, 5.2, 0.0, 16.0);
-        System.out.println(result);
-        result = rasterer.searchSingleDimCoord
-                (7, -122.24163047377972,
-                        MapServer.ROOT_ULLON, MapServer.ROOT_LRLON);
-        System.out.println(result); // expected: -122.24212646484375
-        result = rasterer.searchSingleDimCoord
-                (1, -122.3027284165759,
-                        MapServer.ROOT_ULLON, MapServer.ROOT_LRLON);
-        System.out.println(result); // expected: -122.2998046875
-        result = rasterer.searchSingleDimCoord
-                (2, -122.30410170759153,
-                        MapServer.ROOT_ULLON, MapServer.ROOT_LRLON);
-        System.out.println(result); // expected: -122.2998046875
 
-        result = rasterer.searchSingleDimCoord
-                (1, 37.88708748276975, MapServer.ROOT_ULLAT, MapServer.ROOT_LRLAT);
-        System.out.println(result); // expected: 37.85749899038596
-        double a = (MapServer.ROOT_ULLAT - MapServer.ROOT_LRLAT) / 2;
-        System.out.println(37.85749899038596 + a); // expected: 37.892195547244356
+        int[] a = rasterer.identifyFileNum(7, -122.24212646484375, 37.87701580361881);
+//        System.out.println(String.valueOf(a[0]) + " " + String.valueOf(a[1]));
+//        System.out.println("\n\n");
+//
+//        a = rasterer.identifyFileNum(2, -122.2998046875, 37.87484726881516);
+//        System.out.println(String.valueOf(a[0]) + " " + String.valueOf(a[1]));
+//        System.out.println("\n\n");
+//
+//        a = rasterer.identifyFileNum(1, -122.2998046875, 37.892195547244356);
+//        System.out.println(String.valueOf(a[0]) + " " + String.valueOf(a[1]));
+//        System.out.println("\n\n");
+//
+//        a = rasterer.identifyFileNum(1, -122.2998046875, 37.892195547244356);
+//        System.out.println(String.valueOf(a[0]) + " " + String.valueOf(a[1]));
+//        System.out.println("\n\n");
 
-        System.out.println(rasterer.latCoverage);
-        System.out.println("###################");
-
-        double[] coord = rasterer.calcTileULCoor(1, -122.3027284165759, 37.88708748276975);
-        System.out.println(coord[0]); //expected: -122.2998046875
-        System.out.println(coord[1]); //expected: 37.892195547244356
-        int[] aa = rasterer.identifyFileNum(1, -122.2998046875, 37.892195547244356);
-        System.out.println(aa[0]);
-        System.out.println(aa[1]);
-
-        System.out.println("###################");
-        coord = rasterer.calcTileULCoor(7, -122.24163047377972, 37.87655856892288);
-        System.out.println(coord[0]); //expected: -122.24212646484375
-        System.out.println(coord[1]); //expected: 37.87701580361881
-        aa = rasterer.identifyFileNum(7, -122.24212646484375, 37.87701580361881);
-        System.out.println(aa[0]);
-        System.out.println(aa[1]);
-
-        System.out.println("###################");
-        coord = rasterer.calcTileULCoor(2, -122.30410170759153, 37.870213571328854);
-        System.out.println(coord[0]); //expected: -122.2998046875
-        System.out.println(coord[1]); //expected: 37.87484726881516
-        aa = rasterer.identifyFileNum(2, -122.2998046875, 37.87484726881516);
-        System.out.println(aa[0]);
-        System.out.println(aa[1]);
+        double[] d = rasterer.calcTileULCoor(7, -122.24053369025242, 37.87548268822065);
+        a = rasterer.identifyFileNum(7, d[0], d[1]);
+        System.out.println(String.valueOf(a[0]) + " " + String.valueOf(a[1]));
+        System.out.println("########");
+        d = rasterer.calcTileULCoor(2, -122.2104604264636, 37.8318576119893);
+        a = rasterer.identifyFileNum(2, d[0], d[1]);
+        System.out.println(String.valueOf(a[0]) + " " + String.valueOf(a[1]));
+        System.out.println("########");
+        d = rasterer.calcTileULCoor(1, -122.20908713544797, 37.848731523430196);
+        a = rasterer.identifyFileNum(1, d[0], d[1]);
+        System.out.println(String.valueOf(a[0]) + " " + String.valueOf(a[1]));
     }
 
 }
