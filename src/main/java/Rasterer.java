@@ -58,36 +58,34 @@ public class Rasterer {
 
     private Map<String, Object> constructResult(Map<String, Double> params) {
         Map<String, Object> results = new HashMap<>();
+
         int depth = calcDepth((params.get("lrlon") - params.get("ullon"))/ params.get("w"));
 
         double[] uLTileULCoor = calcTileULCoor(depth, params.get("ullon"), params.get("ullat"));
         double[] lRTileULCoor = calcTileULCoor(depth, params.get("lrlon"), params.get("lrlat"));
 
-//        System.out.println(Arrays.deepToString(constructTile(depth, uLTileULCoor, lRTileULCoor)));
+        System.out.println(Arrays.deepToString(constructTile(depth, uLTileULCoor, lRTileULCoor)));
 //        System.out.println(constructTile(depth, uLTileULCoor, lRTileULCoor).length);
 
         return results;
     }
 
 
-//    private String[][] constructTile(int depth, double[] uLTileULCoor, double[] lRTileULCoor) {
-//        int[] uLTile = identifyFileNum(depth, uLTileULCoor[0], uLTileULCoor[1]);
-//        int[] lRTile = identifyFileNum(depth, lRTileULCoor[0], lRTileULCoor[1]);
-//        System.out.println(lRTile[0]);
-//        System.out.println(lRTile[1]);
-//
-//        int numOfHorizontalTile = lRTile[0] - uLTile[0] + 1;
-//        int numOfVerticalTile = lRTile[1] - uLTile[1] + 1;
-//
-//        String [][] result = new String[numOfHorizontalTile][numOfVerticalTile];
-//        for (int y = 0; y < numOfVerticalTile - 1; y++) {
-//            for (int x = 0; x < numOfHorizontalTile - 1; x++) {
-//                result[y][x] = "d" + depth + "_x" + String.valueOf(uLTile[0] + x) + "_y" + String.valueOf(uLTile[1] + y) + ".png";
-//            }
-//        }
-//
-//        return result;
-//    }
+    private String[][] constructTile(int depth, double[] uLTileULCoor, double[] lRTileULCoor) {
+        int[] uLTile = identifyFileNum(depth, uLTileULCoor[0], uLTileULCoor[1]),
+                lRTile = identifyFileNum(depth, lRTileULCoor[0], lRTileULCoor[1]);
+        int numOfCol = lRTile[0] - uLTile[0] + 1,
+                numOfRow = lRTile[1] - uLTile[1] + 1;
+
+        String[][] result = new String[numOfRow][numOfCol];
+
+        for (int y = 0; y < numOfRow; y++) {
+            for (int x = 0; x < numOfCol; x++)
+                result[y][x] = "d" + depth + "_x" + (uLTile[0] + x) + "_y" + (uLTile[1] + y) + ".png";
+        }
+
+        return result;
+    }
 
 
     /** Takes the query LonDPP and returns the level of depth corresponding to the query
@@ -182,20 +180,13 @@ public class Rasterer {
      * @return [x, y]
      * */
     private int[] identifyFileNum(int depth, double tileUlLon, double tileUlLat) {
-        int x = 0;
-        int y = 0;
+        int x = 0, y = 0;
         double numOfTiles = Math.pow(2, depth);
         double longDisFromBound = tileUlLon - MapServer.ROOT_ULLON;
         double latDisFromBound = MapServer.ROOT_ULLAT - tileUlLat;
 
-        if (longDisFromBound != 0){
-            x = (int) Math.round((longDisFromBound / this.lonCoverage) * numOfTiles);
-        }
-
-        if (latDisFromBound != 0) {
-
-            y = (int) Math.round((latDisFromBound / this.latCoverage) * numOfTiles);
-        }
+        if (longDisFromBound != 0) x = (int) Math.round((longDisFromBound / this.lonCoverage) * numOfTiles);
+        if (latDisFromBound != 0) y = (int) Math.round((latDisFromBound / this.latCoverage) * numOfTiles);
 
         return new int[] {x, y};
     }
@@ -204,34 +195,6 @@ public class Rasterer {
     /** The Main function is used for testing purposes.*/
     public static void main (String[] args) {
         Rasterer rasterer = new Rasterer();
-
-        int[] a = rasterer.identifyFileNum(7, -122.24212646484375, 37.87701580361881);
-//        System.out.println(String.valueOf(a[0]) + " " + String.valueOf(a[1]));
-//        System.out.println("\n\n");
-//
-//        a = rasterer.identifyFileNum(2, -122.2998046875, 37.87484726881516);
-//        System.out.println(String.valueOf(a[0]) + " " + String.valueOf(a[1]));
-//        System.out.println("\n\n");
-//
-//        a = rasterer.identifyFileNum(1, -122.2998046875, 37.892195547244356);
-//        System.out.println(String.valueOf(a[0]) + " " + String.valueOf(a[1]));
-//        System.out.println("\n\n");
-//
-//        a = rasterer.identifyFileNum(1, -122.2998046875, 37.892195547244356);
-//        System.out.println(String.valueOf(a[0]) + " " + String.valueOf(a[1]));
-//        System.out.println("\n\n");
-
-        double[] d = rasterer.calcTileULCoor(7, -122.24053369025242, 37.87548268822065);
-        a = rasterer.identifyFileNum(7, d[0], d[1]);
-        System.out.println(String.valueOf(a[0]) + " " + String.valueOf(a[1]));
-        System.out.println("########");
-        d = rasterer.calcTileULCoor(2, -122.2104604264636, 37.8318576119893);
-        a = rasterer.identifyFileNum(2, d[0], d[1]);
-        System.out.println(String.valueOf(a[0]) + " " + String.valueOf(a[1]));
-        System.out.println("########");
-        d = rasterer.calcTileULCoor(1, -122.20908713544797, 37.848731523430196);
-        a = rasterer.identifyFileNum(1, d[0], d[1]);
-        System.out.println(String.valueOf(a[0]) + " " + String.valueOf(a[1]));
     }
 
 }
