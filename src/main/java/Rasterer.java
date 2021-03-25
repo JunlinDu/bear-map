@@ -9,6 +9,12 @@ import java.lang.Math;
  * @author Junlin Du
  */
 public class Rasterer {
+    /* TODO Bug fix:
+        The map will automatically zoom in one level when the user zoom out and
+        move the requested area to where it requires the backend server to raster
+        more image. Possible cause could come from the front end but it is more
+        likely associated with depth and lonDPP calculation.
+        */
 
     private double lonCoverage;
     private double latCoverage;
@@ -57,7 +63,7 @@ public class Rasterer {
         return constructResult(params);
     }
 
-    int i = 0;
+//    int i = 0;
     private Map<String, Object> constructResult(Map<String, Double> params) {
         Map<String, Object> results = new HashMap<>();
 
@@ -69,9 +75,9 @@ public class Rasterer {
                 {lRTileULCoor[0] + this.tileLonCoverage[depth],
                 lRTileULCoor[1] - this.tileLatCoverage[depth]};
 
-        System.out.println(i);
-        System.out.println("depth: " + depth);
-        i++;
+//        System.out.println(i);
+//        System.out.println("depth: " + depth);
+//        i++;
 
         // test for tile construction
         // System.out.println(Arrays.deepToString(constructTile(depth, uLTileULCoor, lRTileULCoor)));
