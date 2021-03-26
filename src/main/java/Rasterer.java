@@ -9,15 +9,8 @@ import java.lang.Math;
  * @author Junlin Du
  */
 public class Rasterer {
-    /* TODO Bug fix:
-        The map will automatically zoom in one level when the user zoom out and
-        move the requested area to where it requires the backend server to raster
-        more image. Possible cause could come from the front end but it is more
-        likely associated with depth and lonDPP calculation.
-        */
-
-    private double lonCoverage;
-    private double latCoverage;
+    private static final double LONCOVERAGE = MapServer.ROOT_LRLON - MapServer.ROOT_ULLON;
+    private static final double LATCOVERAGE = MapServer.ROOT_ULLAT - MapServer.ROOT_LRLAT;
     private double[] tileLonCoverage;
     private double[] tileLatCoverage;
 
@@ -29,18 +22,17 @@ public class Rasterer {
     private ArrayList<Double>  zoomLevelLonDPPs;
 
     public Rasterer() {
-        lonCoverage = MapServer.ROOT_LRLON - MapServer.ROOT_ULLON;
-        latCoverage = MapServer.ROOT_ULLAT - MapServer.ROOT_LRLAT;
         zoomLevelLonDPPs = new ArrayList<Double>();
         tileLonCoverage = new double[8];
         tileLatCoverage = new double[8];
 
+        // calculates and initiates an array list for the LonDPP of 8 levels of zoom
         for (int i = 0, l = 1; i < 8; i++, l*=2) {
-            // calculates and initiates an array list for the LonDPP of 8 levels of zoom
-            zoomLevelLonDPPs.add(lonCoverage / (l * MapServer.TILE_SIZE));
-            tileLonCoverage[i] = lonCoverage / l;
-            tileLatCoverage[i] = latCoverage / l;
+            zoomLevelLonDPPs.add(LONCOVERAGE / (l * MapServer.TILE_SIZE));
+            tileLonCoverage[i] = LONCOVERAGE / l;
+            tileLatCoverage[i] = LATCOVERAGE / l;
         }
+        System.out.println(zoomLevelLonDPPs);
     }
 
 
@@ -63,7 +55,6 @@ public class Rasterer {
         return constructResult(params);
     }
 
-//    int i = 0;
     private Map<String, Object> constructResult(Map<String, Double> params) {
         Map<String, Object> results = new HashMap<>();
 
@@ -75,12 +66,6 @@ public class Rasterer {
                 {lRTileULCoor[0] + this.tileLonCoverage[depth],
                 lRTileULCoor[1] - this.tileLatCoverage[depth]};
 
-//        System.out.println(i);
-//        System.out.println("depth: " + depth);
-//        i++;
-
-        // test for tile construction
-        // System.out.println(Arrays.deepToString(constructTile(depth, uLTileULCoor, lRTileULCoor)));
         results.put("raster_ul_lon", uLTileULCoor[0]);
         results.put("depth", depth);
         results.put("raster_lr_lon", lRTileLRCoor[0]);
@@ -131,7 +116,7 @@ public class Rasterer {
     private int calcDepth(double queryLonDPP) {
         int i = 0;
         for (double ldpp : zoomLevelLonDPPs) {
-            if (ldpp < queryLonDPP || i == zoomLevelLonDPPs.size() - 1) break;
+            if (ldpp <= queryLonDPP || i == zoomLevelLonDPPs.size() - 1) break;
             i++;
         }
         return i;
@@ -214,8 +199,8 @@ public class Rasterer {
         double longDisFromBound = tileUlLon - MapServer.ROOT_ULLON;
         double latDisFromBound = MapServer.ROOT_ULLAT - tileUlLat;
 
-        if (longDisFromBound != 0) x = (int) Math.round((longDisFromBound / this.lonCoverage) * numOfTiles);
-        if (latDisFromBound != 0) y = (int) Math.round((latDisFromBound / this.latCoverage) * numOfTiles);
+        if (longDisFromBound != 0) x = (int) Math.round((longDisFromBound / LONCOVERAGE) * numOfTiles);
+        if (latDisFromBound != 0) y = (int) Math.round((latDisFromBound / LATCOVERAGE) * numOfTiles);
 
         return new int[] {x, y};
     }
