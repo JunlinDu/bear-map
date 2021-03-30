@@ -1,4 +1,4 @@
-package GraphBuilding;
+package GraphBuilder;
 
 /**
  * Priority queue where objects have a priority that is provided

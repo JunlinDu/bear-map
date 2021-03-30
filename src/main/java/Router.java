@@ -1,4 +1,4 @@
-import GraphBuilding.GraphDB;
+import GraphBuilder.GraphDB;
 
 import java.util.List;
 import java.util.Objects;

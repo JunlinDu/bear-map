@@ -1,6 +1,4 @@
-package GraphBuilding;
-
-import GraphBuilding.GraphDB;
+package GraphBuilder;
 
 import java.util.List;
 import java.util.ArrayList;

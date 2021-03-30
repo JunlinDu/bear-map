@@ -1,4 +1,4 @@
-package GraphBuilding;
+package GraphBuilder;
 
 import java.util.ArrayList;
 import java.util.NoSuchElementException;

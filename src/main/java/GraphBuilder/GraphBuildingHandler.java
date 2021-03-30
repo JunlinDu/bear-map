@@ -1,4 +1,4 @@
-package GraphBuilding;
+package GraphBuilder;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
