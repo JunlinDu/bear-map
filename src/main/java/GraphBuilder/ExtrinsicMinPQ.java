@@ -4,6 +4,7 @@ package GraphBuilder;
  * Priority queue where objects have a priority that is provided
  * extrinsically, i.e. are are supplied as an argument during insertion
  * and can be changed using the changePriority method.
+ * NOTE: This interface is originally provided by UC Berkely CS61B Team
  */
 public interface ExtrinsicMinPQ<T> {
     /* Adds an item with the given priority value. Throws an
