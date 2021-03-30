@@ -1,10 +1,14 @@
+package GraphBuilding;
+
+import GraphBuilding.GraphDB;
+
 import java.util.List;
 import java.util.ArrayList;
 
 /**
- * This class provides a main method for experimenting with GraphDB construction.
+ * This class provides a main method for experimenting with GraphBuilding.GraphDB construction.
  * You could also use MapServer, but this class lets you play around with
- * GraphDB in isolation from all the rest of the parts of this assignment.
+ * GraphBuilding.GraphDB in isolation from all the rest of the parts of this assignment.
  */
 public class GraphDBLauncher {
     private static final String OSM_DB_PATH = "../library-sp18/data/berkeley-2018.osm.xml";
@@ -33,6 +37,6 @@ public class GraphDBLauncher {
         System.out.print("The vertex number closest to -122.258207, 37.875352 is " + v + ", which");
         System.out.println(" has longitude, latitude of: " + g.lon(v) + ", " + g.lat(v));
 
-        System.out.println("To get started, uncomment print statements in GraphBuildingHandler.");
+        System.out.println("To get started, uncomment print statements in GraphBuilding.GraphBuildingHandler.");
     }
 }

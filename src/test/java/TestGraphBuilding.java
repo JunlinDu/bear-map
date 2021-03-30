@@ -1,3 +1,4 @@
+import GraphBuilding.GraphDB;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -6,8 +7,8 @@ import java.util.HashSet;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Basic sanity check for your GraphDB construction. This test simply tests a small number of
- * hard coded queries, but if you get them right, your GraphDB class is probably correct.
+ * Basic sanity check for your GraphBuilding.GraphDB construction. This test simply tests a small number of
+ * hard coded queries, but if you get them right, your GraphBuilding.GraphDB class is probably correct.
  */
 public class TestGraphBuilding {
     private static GraphDB graph;

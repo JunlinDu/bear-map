@@ -1,3 +1,5 @@
+package GraphBuilding;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -40,7 +42,7 @@ public class GraphBuildingHandler extends DefaultHandler {
     private final GraphDB g;
 
     /**
-     * Create a new GraphBuildingHandler.
+     * Create a new GraphBuilding.GraphBuildingHandler.
      * @param g The graph to populate with the XML data.
      */
     public GraphBuildingHandler(GraphDB g) {

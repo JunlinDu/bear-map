@@ -1,3 +1,6 @@
+package GraphBuilding;
+
+import GraphBuilding.GraphBuildingHandler;
 import org.xml.sax.SAXException;
 
 import java.io.File;
@@ -10,7 +13,7 @@ import java.util.ArrayList;
 
 /**
  * Graph for storing all of the intersection (vertex) and road (edge) information.
- * Uses your GraphBuildingHandler to convert the XML files into a graph. Your
+ * Uses your GraphBuilding.GraphBuildingHandler to convert the XML files into a graph. Your
  * code must include the vertices, adjacent, distance, closest, lat, and lon
  * methods. You'll also need to include instance variables and methods for
  * modifying the graph (e.g. addNode and addEdge).
@@ -32,8 +35,11 @@ public class GraphDB {
             FileInputStream inputStream = new FileInputStream(inputFile);
             // GZIPInputStream stream = new GZIPInputStream(inputStream);
 
+            // Setting up the parser
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
+
+
             GraphBuildingHandler gbh = new GraphBuildingHandler(this);
             saxParser.parse(inputStream, gbh);
         } catch (ParserConfigurationException | SAXException | IOException e) {
@@ -64,8 +70,8 @@ public class GraphDB {
      * Returns an iterable of all vertex IDs in the graph.
      * @return An iterable of id's of all vertices in the graph.
      */
-    Iterable<Long> vertices() {
-        //YOUR CODE HERE, this currently returns only an empty list.
+    public Iterable<Long> vertices() {
+        //TODO: YOUR CODE HERE, this currently returns only an empty list.
         return new ArrayList<Long>();
     }
 
@@ -74,7 +80,7 @@ public class GraphDB {
      * @param v The id of the vertex we are looking adjacent to.
      * @return An iterable of the ids of the neighbors of v.
      */
-    Iterable<Long> adjacent(long v) {
+    public Iterable<Long> adjacent(long v) {
         return null;
     }
 
@@ -86,11 +92,11 @@ public class GraphDB {
      * @param w The id of the second vertex.
      * @return The great-circle distance between the two locations from the graph.
      */
-    double distance(long v, long w) {
+    public double distance(long v, long w) {
         return distance(lon(v), lat(v), lon(w), lat(w));
     }
 
-    static double distance(double lonV, double latV, double lonW, double latW) {
+    public static double distance(double lonV, double latV, double lonW, double latW) {
         double phi1 = Math.toRadians(latV);
         double phi2 = Math.toRadians(latW);
         double dphi = Math.toRadians(latW - latV);
@@ -135,7 +141,7 @@ public class GraphDB {
      * @param lat The target latitude.
      * @return The id of the node in the graph closest to the target.
      */
-    long closest(double lon, double lat) {
+    public long closest(double lon, double lat) {
         return 0;
     }
 
@@ -144,7 +150,7 @@ public class GraphDB {
      * @param v The id of the vertex.
      * @return The longitude of the vertex.
      */
-    double lon(long v) {
+    public double lon(long v) {
         return 0;
     }
 
@@ -153,7 +159,7 @@ public class GraphDB {
      * @param v The id of the vertex.
      * @return The latitude of the vertex.
      */
-    double lat(long v) {
+    public double lat(long v) {
         return 0;
     }
 }

@@ -1,3 +1,4 @@
+import GraphBuilding.GraphDB;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -7,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 
 /**
  * created by hug 4/9/2018
- * Basic sanity check for your GraphDB construction on a tiny clean input graph.
+ * Basic sanity check for your GraphBuilding.GraphDB construction on a tiny clean input graph.
  */
 public class TestGraphBuildingTiny {
     private static GraphDB graphTiny;
