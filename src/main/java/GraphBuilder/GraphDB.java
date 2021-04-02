@@ -56,15 +56,15 @@ public class GraphDB {
      * Inner Class that represents a directed, weighted Edge on the map.
      * Each Edge has a destination node and a weight */
     private class Edge {
-        private Node dest;
+        private long dest;
         private double weight;
 
-        public Edge(Node dest, double weight) {
+        public Edge(long dest, double weight) {
             this.dest = dest;
             this.weight = weight;
         }
 
-        public Node getDest() {
+        public long getDest() {
             return dest;
         }
 
@@ -112,7 +112,11 @@ public class GraphDB {
      *  we can reasonably assume this since typically roads are connected.
      */
     private void clean() {
-        // TODO: Your code here.
+        // FIXME this is implemented on the assumption that any given pair of two
+        //  nodes are connected bidirectionally by two edges. Might require fix if
+        //  later find out not to be the case.
+        for (long id : this.nodesDict.keySet())
+            if (!this.graph.containsKey(id)) this.nodesDict.remove(id);
     }
 
     /**
@@ -132,7 +136,7 @@ public class GraphDB {
         ArrayList<Edge> adjEdges = graph.get(v);
         ArrayList<Long> adjNodesId = new ArrayList<>();
 
-        for (Edge e : adjEdges) adjNodesId.add(e.dest.id);
+        for (Edge e : adjEdges) adjNodesId.add(e.dest);
 
         return adjNodesId;
     }
@@ -227,5 +231,38 @@ public class GraphDB {
     public double lat(long v) {
         if (!nodesDict.containsKey(v)) return 0;
         return this.nodesDict.get(v).getLat();
+    }
+
+    /**
+     * Adding a Node to the Node Map
+     * @param node the Node to be added
+     * */
+    public void addNode(Node node) {
+        this.nodesDict.put(node.getId(), node);
+    }
+
+    /**
+     * Remove a Node from the Node Map
+     * @param id the id of the Node to be removed
+     * */
+    public void removeNode(long id) {
+        this.nodesDict.remove(id);
+    }
+
+    /**
+     * Adding an edge to the adjacency list
+     * @param originNode the id of the Node from which the edge extends
+     * @param destNode the id of the Node to which the edge extends
+     * @param weight the weight (distance) of the edge
+     * */
+    public void addEdge(long originNode, long destNode, double weight) {
+        Edge edge = new Edge(destNode, weight);
+        if (!this.graph.containsKey(originNode)) {
+            ArrayList<Edge> edges = new ArrayList<>();
+            edges.add(edge);
+            this.graph.put(originNode, edges);
+        } else {
+            this.graph.get(originNode).add(edge);
+        }
     }
 }
