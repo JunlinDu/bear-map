@@ -8,20 +8,70 @@ import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * Graph for storing all of the intersection (vertex) and road (edge) information.
- * Uses your GraphBuilding.GraphBuildingHandler to convert the XML files into a graph. Your
- * code must include the vertices, adjacent, distance, closest, lat, and lon
- * methods. You'll also need to include instance variables and methods for
- * modifying the graph (e.g. addNode and addEdge).
- *
- * @author Alan Yao, Josh Hug
+ * @author Alan Yao, Josh Hug, Junlin Du
  */
 public class GraphDB {
-    /** Your instance variables for storing the graph. You should consider
-     * creating helper classes, e.g. Node, Edge, etc. */
+
+    // An adjacency list(map) that represents the graph
+    private Map<Long, ArrayList<Edge>> graph = new HashMap<>();
+
+    // HashMap, serves for fast lookup operation, that maps node ids to corresponding nodes
+    private Map<Long, Node> nodesDict = new HashMap<>();
+
+    /**
+     * Inner class that represents a node on the map.
+     * Nodes is one of the elements in the OSM XML that represents a single point
+     * defined by latitude, longitude and an ID.
+     * <a href="https://wiki.openstreetmap.org/wiki/Node">Documentation</a>
+     * */
+    private class Node {
+        private long id;
+        private double lon;
+        private double lat;
+
+        public Node(long id, double lon, double lat) {
+            this.id = id;
+            this.lon = lon;
+            this.lat = lat;
+        }
+
+        public long getId() {
+            return id;
+        }
+
+        public double getLon() {
+            return lon;
+        }
+
+        public double getLat() {
+            return lat;
+        }
+    }
+
+    /**
+     * Inner Class that represents a directed, weighted Edge on the map.
+     * Each Edge has a destination node and a weight */
+    private class Edge {
+        private Node dest;
+        private double weight;
+
+        public Edge(Node dest, double weight) {
+            this.dest = dest;
+            this.weight = weight;
+        }
+
+        public Node getDest() {
+            return dest;
+        }
+
+        public double getWeight() {
+            return weight;
+        }
+    }
 
     /**
      * Example constructor shows how to create and start an XML parser.
@@ -70,8 +120,7 @@ public class GraphDB {
      * @return An iterable of id's of all vertices in the graph.
      */
     public Iterable<Long> vertices() {
-        //TODO: YOUR CODE HERE, this currently returns only an empty list.
-        return new ArrayList<Long>();
+        return new ArrayList<Long>(nodesDict.keySet());
     }
 
     /**
@@ -80,7 +129,12 @@ public class GraphDB {
      * @return An iterable of the ids of the neighbors of v.
      */
     public Iterable<Long> adjacent(long v) {
-        return null;
+        ArrayList<Edge> adjEdges = graph.get(v);
+        ArrayList<Long> adjNodesId = new ArrayList<>();
+
+        for (Edge e : adjEdges) adjNodesId.add(e.dest.id);
+
+        return adjNodesId;
     }
 
     /**
@@ -141,7 +195,18 @@ public class GraphDB {
      * @return The id of the node in the graph closest to the target.
      */
     public long closest(double lon, double lat) {
-        return 0;
+        long node = 0L;
+        double dist, closestDist = Double.POSITIVE_INFINITY;
+
+        for (Node nd : this.nodesDict.values()) {
+            dist = distance(lon, lat, nd.getLon(), nd.getLat());
+            if (dist < closestDist) {
+                closestDist = dist;
+                node = nd.getId();
+            }
+        }
+
+        return node;
     }
 
     /**
@@ -150,7 +215,8 @@ public class GraphDB {
      * @return The longitude of the vertex.
      */
     public double lon(long v) {
-        return 0;
+        if (!nodesDict.containsKey(v)) return 0;
+        return this.nodesDict.get(v).getLon();
     }
 
     /**
@@ -159,6 +225,7 @@ public class GraphDB {
      * @return The latitude of the vertex.
      */
     public double lat(long v) {
-        return 0;
+        if (!nodesDict.containsKey(v)) return 0;
+        return this.nodesDict.get(v).getLat();
     }
 }
