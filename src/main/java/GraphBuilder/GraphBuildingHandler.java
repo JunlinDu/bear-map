@@ -64,8 +64,6 @@ public class GraphBuildingHandler extends DefaultHandler {
             /* A <way> is encountered */
             activeState = "way";
 
-            // For testing purposes
-            System.out.println("Beginning a way...");
             // TODO Add way ID later
 
         } else if (activeState.equals("way") && qName.equals("nd")) {
@@ -90,10 +88,8 @@ public class GraphBuildingHandler extends DefaultHandler {
         } else if (activeState.equals("node") && qName.equals("tag") && attributes.getValue("k")
                 .equals("name")) {
             /* <tag ... /> with k="name" is encountered as a child element of <node> ... </node> . */
-            /* TODO Create a location. */
-            /* Hint: Since we found this <tag...> INSIDE a node, we should probably remember which
-            node this tag belongs to. Remember XML is parsed top-to-bottom, so probably it's the
-            last node that you looked at (check the first if-case). */
+            /* TODO Create a location. Remember which node is this tag belongs to */
+
 //            System.out.println("Node's name: " + attributes.getValue("v"));
         }
     }
@@ -116,10 +112,10 @@ public class GraphBuildingHandler extends DefaultHandler {
                 for (int i = 0; i < way.size() - 1; i++) {
                     double weight = db.distance(way.get(i), way.get(i + 1));
                     db.addEdge(way.get(i), way.get(i + 1), weight);
+                    db.addEdge(way.get(i + 1), way.get(i), weight);
                 }
             }
 
-            System.out.println("Finishing a way..."); // Testing Purposes
             valid = false;
             way.clear();
         }
