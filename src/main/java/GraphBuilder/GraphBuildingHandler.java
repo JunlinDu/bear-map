@@ -4,6 +4,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -39,14 +40,14 @@ public class GraphBuildingHandler extends DefaultHandler {
                     "residential", "living_street", "motorway_link", "trunk_link", "primary_link",
                     "secondary_link", "tertiary_link"));
     private String activeState = "";
-    private final GraphDB g;
+    private final GraphDB db;
 
     /**
      * Create a new GraphBuilding.GraphBuildingHandler.
-     * @param g The graph to populate with the XML data.
+     * @param db The graph to populate with the XML data.
      */
-    public GraphBuildingHandler(GraphDB g) {
-        this.g = g;
+    public GraphBuildingHandler(GraphDB db) {
+        this.db = db;
     }
 
     /**
@@ -66,16 +67,22 @@ public class GraphBuildingHandler extends DefaultHandler {
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes)
             throws SAXException {
-        /* Some example code on how you might begin to parse XML files. */
         if (qName.equals("node")) {
-            /* We encountered a new <node...> tag. */
             activeState = "node";
-//            System.out.println("Node id: " + attributes.getValue("id"));
-//            System.out.println("Node lon: " + attributes.getValue("lon"));
-//            System.out.println("Node lat: " + attributes.getValue("lat"));
 
-            /* TODO Use the above information to save a "node" to somewhere. */
-            /* Hint: A graph-like structure would be nice. */
+            GraphDB.Node newNode = new GraphDB.Node(attributes.getValue("id"), attributes.getValue("lon"), attributes.getValue("lat"));
+            db.addNode(newNode);
+
+
+            // For testing purposes, variable is created for better visualization when using the debugger
+            ArrayList<Long> list = (ArrayList<Long>) db.vertices();
+            System.out.println("size of nodeDict: " + list.size());
+            String id = attributes.getValue("id");
+            String lon = attributes.getValue("lon");
+            String lat = attributes.getValue("lat");
+            System.out.println("Node id: " + id);
+            System.out.println("Node lon: " + lon);
+            System.out.println("Node lat: " + lat);
 
         } else if (qName.equals("way")) {
             /* We encountered a new <way...> tag. */

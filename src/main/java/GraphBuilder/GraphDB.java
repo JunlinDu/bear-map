@@ -28,15 +28,15 @@ public class GraphDB {
      * defined by latitude, longitude and an ID.
      * <a href="https://wiki.openstreetmap.org/wiki/Node">Documentation</a>
      * */
-    private class Node {
+    public static class Node {
         private long id;
         private double lon;
         private double lat;
 
-        public Node(long id, double lon, double lat) {
-            this.id = id;
-            this.lon = lon;
-            this.lat = lat;
+        public Node(String id, String lon, String lat) {
+            this.id = Long.parseLong(id);
+            this.lon = Double.parseDouble(lon);
+            this.lat = Double.parseDouble(lat);
         }
 
         public long getId() {
@@ -55,7 +55,7 @@ public class GraphDB {
     /**
      * Inner Class that represents a directed, weighted Edge on the map.
      * Each Edge has a destination node and a weight */
-    private class Edge {
+    public static class Edge {
         private long dest;
         private double weight;
 
