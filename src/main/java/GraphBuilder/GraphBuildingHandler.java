@@ -12,28 +12,13 @@ import java.util.Set;
 /**
  *  Parses OSM XML files using an XML SAX parser. Used to construct the graph of roads for
  *  pathfinding, under some constraints.
- *  See OSM documentation on
- *  <a href="http://wiki.openstreetmap.org/wiki/Key:highway">the highway tag</a>,
- *  <a href="http://wiki.openstreetmap.org/wiki/Way">the way XML element</a>,
- *  <a href="http://wiki.openstreetmap.org/wiki/Node">the node XML element</a>,
- *  and the java
- *  <a href="https://docs.oracle.com/javase/tutorial/jaxp/sax/parsing.html">SAX parser tutorial</a>.
  *
- *  You may find the CSCourseGraphDB and CSCourseGraphDBHandler examples useful.
- *
- *  The idea here is that some external library is going to walk through the XML
- *  file, and your override method tells Java what to do every time it gets to the next
- *  element in the file. This is a very common but strange-when-you-first-see it pattern.
- *  It is similar to the Visitor pattern we discussed for graphs.
- *
- *  @author Alan Yao, Maurice Lee
+ *  @author Alan Yao, Maurice Lee, Junlin Du
  */
 public class GraphBuildingHandler extends DefaultHandler {
     /**
      * Only allow for non-service roads; this prevents going on pedestrian streets as much as
-     * possible. Note that in Berkeley, many of the campus roads are tagged as motor vehicle
-     * roads, but in practice we walk all over them with such impunity that we forget cars can
-     * actually drive on them.
+     * possible.
      */
     private static final Set<String> ALLOWED_HIGHWAY_TYPES = new HashSet<>(Arrays.asList
             ("motorway", "trunk", "primary", "secondary", "tertiary", "unclassified",
@@ -41,6 +26,8 @@ public class GraphBuildingHandler extends DefaultHandler {
                     "secondary_link", "tertiary_link"));
     private String activeState = "";
     private final GraphDB db;
+    private ArrayList<Long> way = new ArrayList<>();
+    private boolean valid = false;
 
     /**
      * Create a new GraphBuilding.GraphBuildingHandler.
@@ -51,8 +38,7 @@ public class GraphBuildingHandler extends DefaultHandler {
     }
 
     /**
-     * Called at the beginning of an element. Typically, you will want to handle each element in
-     * here, and you may want to track the parent element.
+     * Called at the beginning of an element.
      * @param uri The Namespace URI, or the empty string if the element has no Namespace URI or
      *            if Namespace processing is not being performed.
      * @param localName The local name (without prefix), or the empty string if Namespace
@@ -68,55 +54,42 @@ public class GraphBuildingHandler extends DefaultHandler {
     public void startElement(String uri, String localName, String qName, Attributes attributes)
             throws SAXException {
         if (qName.equals("node")) {
+            /* A <node .../> is encountered */
             activeState = "node";
-
-            GraphDB.Node newNode = new GraphDB.Node(attributes.getValue("id"), attributes.getValue("lon"), attributes.getValue("lat"));
+            GraphDB.Node newNode = new GraphDB.Node
+                    (attributes.getValue("id"), attributes.getValue("lon"), attributes.getValue("lat"));
             db.addNode(newNode);
 
-
-            // For testing purposes, variable is created for better visualization when using the debugger
-            ArrayList<Long> list = (ArrayList<Long>) db.vertices();
-            System.out.println("size of nodeDict: " + list.size());
-            String id = attributes.getValue("id");
-            String lon = attributes.getValue("lon");
-            String lat = attributes.getValue("lat");
-            System.out.println("Node id: " + id);
-            System.out.println("Node lon: " + lon);
-            System.out.println("Node lat: " + lat);
-
         } else if (qName.equals("way")) {
-            /* We encountered a new <way...> tag. */
+            /* A <way> is encountered */
             activeState = "way";
-//            System.out.println("Beginning a way...");
-        } else if (activeState.equals("way") && qName.equals("nd")) {
-            /* While looking at a way, we found a <nd...> tag. */
-            //System.out.println("Id of a node in this way: " + attributes.getValue("ref"));
 
-            /* TODO Use the above id to make "possible" connections between the nodes in this way */
-            /* Hint1: It would be useful to remember what was the last node in this way. */
-            /* Hint2: Not all ways are valid. So, directly connecting the nodes here would be
-            cumbersome since you might have to remove the connections if you later see a tag that
-            makes this way invalid. Instead, think of keeping a list of possible connections and
-            remember whether this way is valid or not. */
+            // For testing purposes
+            System.out.println("Beginning a way...");
+            // TODO Add way ID later
+
+        } else if (activeState.equals("way") && qName.equals("nd")) {
+            /* <nd ... /> is encountered as a child element of <way> ... </way> */
+            way.add(Long.parseLong(attributes.getValue("ref")));
 
         } else if (activeState.equals("way") && qName.equals("tag")) {
-            /* While looking at a way, we found a <tag...> tag. */
+            /* <tag ... /> is encountered as a child element of <way> ... </way> */
             String k = attributes.getValue("k");
             String v = attributes.getValue("v");
             if (k.equals("maxspeed")) {
-                //System.out.println("Max Speed: " + v);
                 /* TODO set the max speed of the "current way" here. */
+
             } else if (k.equals("highway")) {
-                //System.out.println("Highway type: " + v);
-                /* TODO Figure out whether this way and its connections are valid. */
-                /* Hint: Setting a "flag" is good enough! */
+                if (ALLOWED_HIGHWAY_TYPES.contains(v)) valid = true;
+
             } else if (k.equals("name")) {
-                //System.out.println("Way Name: " + v);
+                // TODO To be added later for driving direction purposes.
+
             }
-//            System.out.println("Tag with k=" + k + ", v=" + v + ".");
+
         } else if (activeState.equals("node") && qName.equals("tag") && attributes.getValue("k")
                 .equals("name")) {
-            /* While looking at a node, we found a <tag...> with k="name". */
+            /* <tag ... /> with k="name" is encountered as a child element of <node> ... </node> . */
             /* TODO Create a location. */
             /* Hint: Since we found this <tag...> INSIDE a node, we should probably remember which
             node this tag belongs to. Remember XML is parsed top-to-bottom, so probably it's the
@@ -126,8 +99,7 @@ public class GraphBuildingHandler extends DefaultHandler {
     }
 
     /**
-     * Receive notification of the end of an element. You may want to take specific terminating
-     * actions here, like finalizing vertices or edges found.
+     * Receive notification of the end of an element.
      * @param uri The Namespace URI, or the empty string if the element has no Namespace URI or
      *            if Namespace processing is not being performed.
      * @param localName The local name (without prefix), or the empty string if Namespace
@@ -139,10 +111,17 @@ public class GraphBuildingHandler extends DefaultHandler {
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         if (qName.equals("way")) {
-            /* We are done looking at a way. (We finished looking at the nodes, speeds, etc...)*/
-            /* Hint1: If you have stored the possible connections for this way, here's your
-            chance to actually connect the nodes together if the way is valid. */
-//            System.out.println("Finishing a way...");
+            /* </way> is encountered. */
+            if (valid) {
+                for (int i = 0; i < way.size() - 1; i++) {
+                    double weight = db.distance(way.get(i), way.get(i + 1));
+                    db.addEdge(way.get(i), way.get(i + 1), weight);
+                }
+            }
+
+            System.out.println("Finishing a way..."); // Testing Purposes
+            valid = false;
+            way.clear();
         }
     }
 

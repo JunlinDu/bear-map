@@ -115,8 +115,14 @@ public class GraphDB {
         // FIXME this is implemented on the assumption that any given pair of two
         //  nodes are connected bidirectionally by two edges. Might require fix if
         //  later find out not to be the case.
-        for (long id : this.nodesDict.keySet())
-            if (!this.graph.containsKey(id)) this.nodesDict.remove(id);
+
+        Iterator<Map.Entry<Long, Node>> it = this.nodesDict.entrySet().iterator();
+
+        while (it.hasNext()) {
+            if (!this.graph.containsKey(it.next().getKey())) {
+                it.remove();
+            }
+        }
     }
 
     /**
