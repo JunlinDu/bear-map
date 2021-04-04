@@ -148,10 +148,11 @@ public class ArrayHeapMinPQ<I> implements ExtrinsicMinPQ<I> {
 
         this.keySet.remove(this.minHeap.get(1).item);
         this.keySet.put(this.minHeap.get(size()).item,1);
+        Node smallest = this.minHeap.get(1);
         this.minHeap.set(1, this.minHeap.get(size()));
         this.minHeap.remove(size());
         sink(1);
-        return size() == 0? null : getSmallest();
+        return size() == 0? null : smallest.item;
     }
 
     /* return the size of the PQ */
