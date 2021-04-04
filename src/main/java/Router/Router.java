@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 public class Router {
 
     private static ArrayHeapMinPQ<Long> fringe = new ArrayHeapMinPQ<Long>();
+//    private static DoubleMapPQ<Long> fringe = new DoubleMapPQ<Long>();
     private static Map<Long, Double> distTo = new HashMap<>();
     private static Map<Long, Long> edgeTo = new HashMap<>();
 
@@ -50,14 +51,11 @@ public class Router {
         Long p;
 
         while (fringe.size() != 0
-                // FIXME null pointer exception
-                //&& !fringe.getSmallest().equals(targetNode)
+//                && !fringe.getSmallest().equals(targetNode)
         ) {
             p = fringe.removeSmallest();
-            System.out.println(p);
             relaxEdgeFrom(p, db);
         }
-
 
         return constructPath(targetNode);
     }
@@ -67,23 +65,22 @@ public class Router {
         for (Long targetNode: it) {
             // FIXME Edge from(), to() alternative
             double weight = db.distance(startNode, targetNode);
+
             if (distTo.get(startNode) + weight < distTo.get(targetNode)) {
                 distTo.put(targetNode, distTo.get(startNode) + weight);
                 edgeTo.put(targetNode, startNode);
-                fringe.changePriority(targetNode, weight);
+                fringe.changePriority(targetNode, distTo.get(targetNode));
             }
         }
     }
 
     private static ArrayList<Long> constructPath(Long targetNode) {
         ArrayList<Long> path = new ArrayList<>();
-        Long node;
-        node = edgeTo.get(targetNode);
-        while (edgeTo.get(node) != null) {
-            node = edgeTo.get(node);
 
-            path.add(node);
-        }
+        while (path.add(targetNode) && edgeTo.get(targetNode) != null)
+            targetNode = edgeTo.get(targetNode);
+
+        Collections.reverse(path);
 
         return path;
     }
