@@ -53,12 +53,20 @@ public class ArrayHeapMinPQ<I> implements ExtrinsicMinPQ<I> {
     /* The Arraylist that represents the Min Heap */
     private ArrayList<Node> minHeap;
 
+    /* The TreeMap that maps a Node item to the position in the heap
+    * serves for constant time lookup */
     private TreeMap<I, Integer> keySet;
 
     public ArrayHeapMinPQ() {
         minHeap = new ArrayList<>();
         minHeap.add(new Node(null, 0.0));
         keySet = new TreeMap<>();
+    }
+
+    /* Adding keySet getter to resolve access issue from test class
+    * TODO to be deleted later */
+    public TreeMap<I, Integer> getKeySet() {
+        return keySet;
     }
 
     /* return the index of the parent node of the specified node index */
@@ -102,7 +110,11 @@ public class ArrayHeapMinPQ<I> implements ExtrinsicMinPQ<I> {
 
     /* Demote a node down the hierarchy to the position that it belongs to */
     private void sink(int index) {
+        if (size() == 2 && !lessThan(index, leftChild(index)))
+            swap(leftChild(index), index);
+
         if (leftChild(index) > size() || rightChild(index) > size()) return;
+
         if (lessThan(leftChild(index), index) || lessThan(rightChild(index), index)) {
             if (lessThan(leftChild(index), rightChild(index))) {
                 swap(leftChild(index), index);
@@ -119,8 +131,13 @@ public class ArrayHeapMinPQ<I> implements ExtrinsicMinPQ<I> {
     public void add(I item, double priority) {
         if (contains(item)) throw new IllegalArgumentException();
 
+        /* Adding a new node to end of the heap */
         this.minHeap.add(new Node(item, priority));
+
+        /* Adding the item reference to the end of the key set */
         this.keySet.put(item, size());
+
+        /* Promote the node to where it supposed to belong in the heap */
         swim(this.minHeap.size() - 1);
     }
 
@@ -146,14 +163,22 @@ public class ArrayHeapMinPQ<I> implements ExtrinsicMinPQ<I> {
     public I removeSmallest() {
         if (this.minHeap.size() == 1) throw new NoSuchElementException();
 
-        this.keySet.remove(this.minHeap.get(1).item);
+        I smallest = this.getSmallest();
+
+        /* Remove item with lowest priority from key set */
+        this.keySet.remove(smallest);
+        /* Change the index of the last item in the heap to 1 */
         this.keySet.put(this.minHeap.get(size()).item,1);
-        Node smallest = this.minHeap.get(1);
+
+        /* Move the last item to the top of the heap  */
         this.minHeap.set(1, this.minHeap.get(size()));
+        /* Remove item with lowest priority from heap */
         this.minHeap.remove(size());
+
+        /* demote the node to where it supposed to be */
         sink(1);
 
-        return smallest.item;
+        return smallest;
     }
 
     /* return the size of the PQ */
@@ -165,18 +190,28 @@ public class ArrayHeapMinPQ<I> implements ExtrinsicMinPQ<I> {
     /* Change the priority of an Item */
     @Override
     public void changePriority(I item, double priority) {
-        if (!keySet.containsKey(item)) {
-            throw new NoSuchElementException();
+        if (!keySet.containsKey(item)) throw new NoSuchElementException();
+
+        /* getting the node/item index in the heap */
+        int index = this.keySet.get(item);
+
+        /* getting the actual node/item */
+        Node node = this.minHeap.get(index);
+
+        /* setting the priority of the node */
+        node.setPriority(priority);
+
+        /* if the priority value of the current node/item is less than its parent node/item */
+        if (lessThan(index, getParent(index))) {
+            swim(index);
+        } else {
+            if (size() != 2) sink(index);
         }
 
-        int index = this.keySet.get(item);
-        Node node = this.minHeap.get(index);
-        node.setPriority(priority);
-        if (lessThan(index, getParent(index))) swim(index);
-        else sink(index);
     }
 
     public static void main(String[] args) {
+        System.out.println(1 / 2);
     }
 }
 
