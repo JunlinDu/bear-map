@@ -2,35 +2,92 @@ package Router;
 
 import GraphBuilder.GraphDB;
 
-import java.util.List;
-import java.util.Objects;
+
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * This class provides a shortestPath method for finding routes between two points
- * on the map. Start by using Dijkstra's, and if your code isn't fast enough for your
- * satisfaction (or the autograder), upgrade your implementation by switching it to A*.
- * Your code will probably not be fast enough to pass the autograder unless you use A*.
- * The difference between A* and Dijkstra's is only a couple of lines of code, and boils
- * down to the priority you use to order your vertices.
+ * on the map.
  */
 public class Router {
+
+    private static ArrayHeapMinPQ<Long> fringe = new ArrayHeapMinPQ<Long>();
+    private static Map<Long, Double> distTo = new HashMap<>();
+    private static Map<Long, Long> edgeTo = new HashMap<>();
+
     /**
      * Return a List of longs representing the shortest path from the node
      * closest to a start location and the node closest to the destination
      * location.
-     * @param g The graph to use.
+     * @param db The graph to use.
      * @param stlon The longitude of the start location.
      * @param stlat The latitude of the start location.
      * @param destlon The longitude of the destination location.
      * @param destlat The latitude of the destination location.
      * @return A list of node id's in the order visited on the shortest path.
      */
-    public static List<Long> shortestPath(GraphDB g, double stlon, double stlat,
+    public static List<Long> shortestPath(GraphDB db, double stlon, double stlat,
                                           double destlon, double destlat) {
-        return null; // FIXME
+        Long startNode = db.closest(stlon, stlat);
+        Long targetNode = db.closest(destlon, destlat);
+
+        edgeTo.put(startNode, null);
+        distTo.put(startNode, 0.0);
+
+        for (Long node : db.vertices()) {
+            if (!node.equals(startNode)) {
+                fringe.add(node, Double.POSITIVE_INFINITY);
+                distTo.put(node, Double.POSITIVE_INFINITY);
+            } else {
+                fringe.add(node, 0.0);
+                distTo.put(node, 0.0);
+            }
+            edgeTo.put(node, null);
+        }
+
+        Long p;
+
+        while (fringe.size() != 0
+                // FIXME null pointer exception
+                //&& !fringe.getSmallest().equals(targetNode)
+        ) {
+            p = fringe.removeSmallest();
+            System.out.println(p);
+            relaxEdgeFrom(p, db);
+        }
+
+
+        return constructPath(targetNode);
     }
+
+    private static void relaxEdgeFrom(Long startNode, GraphDB db) {
+        Iterable<Long> it = db.adjacent(startNode);
+        for (Long targetNode: it) {
+            // FIXME Edge from(), to() alternative
+            double weight = db.distance(startNode, targetNode);
+            if (distTo.get(startNode) + weight < distTo.get(targetNode)) {
+                distTo.put(targetNode, distTo.get(startNode) + weight);
+                edgeTo.put(targetNode, startNode);
+                fringe.changePriority(targetNode, weight);
+            }
+        }
+    }
+
+    private static ArrayList<Long> constructPath(Long targetNode) {
+        ArrayList<Long> path = new ArrayList<>();
+        Long node;
+        node = edgeTo.get(targetNode);
+        while (edgeTo.get(node) != null) {
+            node = edgeTo.get(node);
+
+            path.add(node);
+        }
+
+        return path;
+    }
+
 
     /**
      * Create the list of directions corresponding to a route on the graph.
