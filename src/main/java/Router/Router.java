@@ -12,11 +12,14 @@ import java.util.regex.Pattern;
  * on the map.
  */
 public class Router {
-
+    /* A Min Priority Queue/Min Heap used for performing path searching */
     private static ArrayHeapMinPQ<Long> fringe = new ArrayHeapMinPQ<Long>();
 
+    /* Map representing the shortest distance from start node to the target node */
     private static Map<Long, Double> distTo = new HashMap<>();
 
+    /* Map representing the edge via which constructs the shortest path from
+    *  start node to the target node */
     private static Map<Long, Long> edgeTo = new HashMap<>();
 
     /**
@@ -32,23 +35,34 @@ public class Router {
      */
     public static List<Long> shortestPath(GraphDB db, double stlon, double stlat,
                                           double destlon, double destlat) {
+        clean();
+
         Long startNode = db.closest(stlon, stlat);
         Long targetNode = db.closest(destlon, destlat);
 
+        Dijkstra(db, startNode, targetNode);
+
+        return constructPath(targetNode);
+    }
+
+    public static void Dijkstra (GraphDB db, Long startNode, Long targetNode) {
         fringe.add(startNode, 0);
         edgeTo.put(startNode, null);
         distTo.put(startNode, 0.0);
 
         Long p;
-
         while (fringe.size() != 0 && !fringe.getSmallest().equals(targetNode)) {
             p = fringe.removeSmallest();
             relaxEdgeFrom(p, db);
         }
-
-        return constructPath(targetNode);
     }
 
+    /**
+     * Performs edge relaxation operation
+     *
+     * @param startNode the node from which an edge is extended
+     * @param db the database representing the graph
+     * */
     private static void relaxEdgeFrom(Long startNode, GraphDB db) {
         Iterable<Long> it = db.adjacent(startNode);
         for (Long targetNode: it) {
@@ -65,6 +79,13 @@ public class Router {
         }
     }
 
+    /**
+     *  Constructing the shortest path return query
+     *
+     *  @param targetNode the target to which the shortest path is heading
+     *  @return a list containing nodes to be traverse through that constructs a
+     *          shortest path to the target node in the order of start -> target
+     *  */
     private static ArrayList<Long> constructPath(Long targetNode) {
         ArrayList<Long> path = new ArrayList<>();
 
@@ -77,7 +98,9 @@ public class Router {
     }
 
     private static void clean() {
-//        this.fringe.
+        fringe.clearMinPQ();
+        distTo.clear();
+        edgeTo.clear();
     }
 
 
