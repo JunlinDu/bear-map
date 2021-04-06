@@ -26,7 +26,9 @@ public class GraphBuildingHandler extends DefaultHandler {
                     "secondary_link", "tertiary_link"));
     private String activeState = "";
     private final GraphDB db;
-    private ArrayList<Long> way = new ArrayList<>();
+    private String wayId;
+    private String wayName;
+    private ArrayList<String> way = new ArrayList<>();
     private boolean valid = false;
 
     /**
@@ -63,26 +65,19 @@ public class GraphBuildingHandler extends DefaultHandler {
         } else if (qName.equals("way")) {
             /* A <way> is encountered */
             activeState = "way";
-
-            // TODO Add way ID later
-
+            this.wayId = attributes.getValue("id");
         } else if (activeState.equals("way") && qName.equals("nd")) {
             /* <nd ... /> is encountered as a child element of <way> ... </way> */
-            way.add(Long.parseLong(attributes.getValue("ref")));
+            way.add(attributes.getValue("ref"));
 
         } else if (activeState.equals("way") && qName.equals("tag")) {
             /* <tag ... /> is encountered as a child element of <way> ... </way> */
             String k = attributes.getValue("k");
             String v = attributes.getValue("v");
-            if (k.equals("maxspeed")) {
-                /* TODO set the max speed of the "current way" here. */
-
-            } else if (k.equals("highway")) {
+            if (k.equals("highway")) {
                 if (ALLOWED_HIGHWAY_TYPES.contains(v)) valid = true;
-
             } else if (k.equals("name")) {
-                // TODO To be added later for driving direction purposes.
-
+                this.wayName = attributes.getValue("v");
             }
 
         } else if (activeState.equals("node") && qName.equals("tag") && attributes.getValue("k")
@@ -109,10 +104,13 @@ public class GraphBuildingHandler extends DefaultHandler {
         if (qName.equals("way")) {
             /* </way> is encountered. */
             if (valid) {
+                db.addWay(new GraphDB.Way(wayId, wayName, way));
+
                 for (int i = 0; i < way.size() - 1; i++) {
-                    double weight = db.distance(way.get(i), way.get(i + 1));
-                    db.addAdjacency(way.get(i), way.get(i + 1), weight);
-                    db.addAdjacency(way.get(i + 1), way.get(i), weight);
+                    db.addAdjacency(way.get(i), way.get(i + 1));
+                    db.addAdjacency(way.get(i + 1), way.get(i));
+                    db.setNodeToWay(way.get(i), wayId);
+                    if (i == way.size() - 2) db.setNodeToWay(way.get(i + 1), wayId);
                 }
             }
 

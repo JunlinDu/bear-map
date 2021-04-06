@@ -22,6 +22,9 @@ public class GraphDB {
     // HashMap, serves for fast lookup operation, that maps node ids to corresponding nodes
     private Map<Long, Node> nodesDict = new HashMap<>();
 
+    // way
+    private Map<Long, Way> waysDict = new HashMap<>();
+
     /**
      * Inner class that represents a node on the map.
      * Nodes is one of the elements in the OSM XML that represents a single point
@@ -32,6 +35,10 @@ public class GraphDB {
         private long id;
         private double lon;
         private double lat;
+
+        /* The way to which the node belongs */
+        private long wayId;
+
 
         public Node(String id, String lon, String lat) {
             this.id = Long.parseLong(id);
@@ -49,6 +56,39 @@ public class GraphDB {
 
         public double getLat() {
             return lat;
+        }
+
+        private void setWayId(String wayId) {
+            this.wayId = Long.parseLong(wayId);
+        }
+    }
+
+    /**
+     * Inner class representing a way
+     * */
+    public static class Way {
+        private long id;
+        private String name;
+        private ArrayList<Long> nodes = new ArrayList<>();
+
+        public Way(String id, String name, ArrayList<String> nodes) {
+            this.id = Long.parseLong(id);
+            this.name = name;
+            for (String nd : nodes) {
+                this.nodes.add(Long.parseLong(nd));
+            }
+        }
+
+        public long getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public ArrayList<Long> getNodes() {
+            return nodes;
         }
     }
 
@@ -114,6 +154,15 @@ public class GraphDB {
      */
     public Iterable<Long> adjacent(long v) {
         return new ArrayList<>(graph.get(v));
+    }
+
+    /**
+     * Setting the way property of a node
+     * @param nodeId the Id of the Node
+     * @param wayId the Id of the Road
+     * */
+    public void setNodeToWay(String nodeId, String wayId) {
+        this.nodesDict.get(Long.parseLong(nodeId)).setWayId(wayId);
     }
 
     /**
@@ -228,16 +277,60 @@ public class GraphDB {
      * Adding an edge to the adjacency list
      * @param originNode the id of the Node from which the edge extends
      * @param destNode the id of the Node to which the edge extends
-     * @param weight the weight (distance) of the edge
      * */
-    public void addAdjacency(long originNode, long destNode, double weight) {
+    public void addAdjacency(String originNode, String destNode) {
+        Long originNd = Long.parseLong(originNode);
+        Long destNd = Long.parseLong(destNode);
         
-        if (!this.graph.containsKey(originNode)) {
+        if (!this.graph.containsKey(originNd)) {
             ArrayList<Long> adjacencies = new ArrayList<>();
-            adjacencies.add(destNode);
-            this.graph.put(originNode, adjacencies);
+            adjacencies.add(destNd);
+            this.graph.put(originNd, adjacencies);
         } else {
-            this.graph.get(originNode).add(destNode);
+            this.graph.get(originNd).add(destNd);
         }
+
+    }
+
+    /**
+     * Adding a way to waysDict
+     * @param way a way object
+     * */
+    public void addWay(Way way) {
+        this.waysDict.put(way.id, way);
+    }
+
+    /**
+     * Find the Id of the way that a node belongs to
+     * @param nodeId the Id of the node
+     *
+     * @return the Id of the way that the node belongs to
+     * */
+    public Long getWayIdByNode(Long nodeId) {
+        return this.nodesDict.get(nodeId).wayId;
+    }
+
+    /**
+     * Find the Name of the way that a node belongs to
+     * @param nodeId the Id of the node
+     *
+     * @return the Name of the way that the node belongs to
+     * */
+    public String getWayNameByNode(Long nodeId) {
+        return this.waysDict.get(getWayIdByNode(nodeId)).name;
+    }
+
+
+    /**
+     * check if a way contains a node
+     * @param wayId the Id of a way
+     * @param nodeId the Id of the Node
+     *
+     * @return a boolean value that indicates whether the way contains the node */
+    public boolean containsNode(Long wayId, Long nodeId) {
+        ArrayList<Long> nodes = this.waysDict.get(wayId).nodes;
+        for (Long nd : nodes) if (nd == nodeId) return true;
+
+        return false;
     }
 }
