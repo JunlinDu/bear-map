@@ -36,7 +36,6 @@ public class Router {
     public static List<Long> shortestPath(GraphDB db, double stlon, double stlat,
                                           double destlon, double destlat) {
         clean();
-
         Long startNode = db.closest(stlon, stlat);
         Long destNode = db.closest(destlon, destlat);
 
@@ -99,15 +98,15 @@ public class Router {
      *  */
     private static ArrayList<Long> constructPath(Long targetNode) {
         ArrayList<Long> path = new ArrayList<>();
-
         while (path.add(targetNode) && edgeTo.get(targetNode) != null)
             targetNode = edgeTo.get(targetNode);
 
         Collections.reverse(path);
-
         return path;
     }
 
+    /**
+     * Clean the shortest path route */
     private static void clean() {
         fringe.clearMinPQ();
         distTo.clear();
