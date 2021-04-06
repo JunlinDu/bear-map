@@ -38,43 +38,54 @@ public class Router {
         clean();
 
         Long startNode = db.closest(stlon, stlat);
-        Long targetNode = db.closest(destlon, destlat);
+        Long destNode = db.closest(destlon, destlat);
 
-        Dijkstra(db, startNode, targetNode);
+        AStar(db, startNode, destNode);
 
-        return constructPath(targetNode);
+        return constructPath(destNode);
     }
 
-    public static void Dijkstra (GraphDB db, Long startNode, Long targetNode) {
+    /**
+     * Performs A* Algorithm (directionally optimized Dijkstra using heuristics) on a graph
+     *
+     * @param db the database representing the graph
+     * @param startNode the node where the path searching starts
+     * @param destNode to node where the path searching leads to
+     * */
+    public static void AStar (GraphDB db, Long startNode, Long destNode) {
         fringe.add(startNode, 0);
         edgeTo.put(startNode, null);
         distTo.put(startNode, 0.0);
 
-        Long p;
-        while (fringe.size() != 0 && !fringe.getSmallest().equals(targetNode)) {
-            p = fringe.removeSmallest();
-            relaxEdgeFrom(p, db);
+        Long currExamNode;
+        while (fringe.size() != 0 && !fringe.getSmallest().equals(destNode)) {
+            currExamNode = fringe.removeSmallest();
+            AStarRelaxEdgeFrom(currExamNode, destNode, db);
         }
     }
 
     /**
-     * Performs edge relaxation operation
+     * Performs edge relaxation operation for A*
      *
-     * @param startNode the node from which an edge is extended
+     * @param currExamNode the node from which an edge is extended
+     * @param destNode the destination node
      * @param db the database representing the graph
      * */
-    private static void relaxEdgeFrom(Long startNode, GraphDB db) {
-        Iterable<Long> it = db.adjacent(startNode);
-        for (Long targetNode: it) {
-            if (!fringe.contains(targetNode)) fringe.add(targetNode, Double.POSITIVE_INFINITY);
-            if (!distTo.containsKey(targetNode)) distTo.put(targetNode, Double.POSITIVE_INFINITY);
+    private static void AStarRelaxEdgeFrom(Long currExamNode, Long destNode, GraphDB db) {
+        Iterable<Long> it = db.adjacent(currExamNode);
+        for (Long adjNode: it) {
+            if (!fringe.contains(adjNode)) fringe.add(adjNode, Double.POSITIVE_INFINITY);
+            if (!distTo.containsKey(adjNode)) distTo.put(adjNode, Double.POSITIVE_INFINITY);
 
-            double weight = db.distance(startNode, targetNode);
+            // the distance/priority associated with an adjacent node is the distance from the
+            // start node to the current adjacent node plus the great circle distance from the
+            // current adjacent node to the destination node as heuristics.
+            double weight = db.distance(currExamNode, adjNode) + db.distance(adjNode, destNode);
 
-            if (distTo.get(startNode) + weight < distTo.get(targetNode)) {
-                distTo.put(targetNode, distTo.get(startNode) + weight);
-                edgeTo.put(targetNode, startNode);
-                fringe.changePriority(targetNode, distTo.get(targetNode));
+            if (distTo.get(currExamNode) + weight < distTo.get(adjNode)) {
+                distTo.put(adjNode, distTo.get(currExamNode) + weight);
+                edgeTo.put(adjNode, currExamNode);
+                fringe.changePriority(adjNode, distTo.get(adjNode));
             }
         }
     }
