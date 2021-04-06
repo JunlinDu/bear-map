@@ -17,7 +17,7 @@ import java.util.*;
 public class GraphDB {
 
     // An adjacency list(map) that represents the graph
-    private Map<Long, ArrayList<Edge>> graph = new HashMap<>();
+    private Map<Long, ArrayList<Long>> graph = new HashMap<>();
 
     // HashMap, serves for fast lookup operation, that maps node ids to corresponding nodes
     private Map<Long, Node> nodesDict = new HashMap<>();
@@ -49,27 +49,6 @@ public class GraphDB {
 
         public double getLat() {
             return lat;
-        }
-    }
-
-    /**
-     * Inner Class that represents a directed, weighted Edge on the map.
-     * Each Edge has a destination node and a weight */
-    public static class Edge {
-        private long dest;
-        private double weight;
-
-        public Edge(long dest, double weight) {
-            this.dest = dest;
-            this.weight = weight;
-        }
-
-        public long getDest() {
-            return dest;
-        }
-
-        public double getWeight() {
-            return weight;
         }
     }
 
@@ -112,12 +91,7 @@ public class GraphDB {
      *  we can reasonably assume this since typically roads are connected.
      */
     private void clean() {
-        // FIXME this is implemented on the assumption that any given pair of two
-        //  nodes are connected bidirectionally by two edges. Might require fix if
-        //  later find out not to be the case.
-
         Iterator<Map.Entry<Long, Node>> it = this.nodesDict.entrySet().iterator();
-
         while (it.hasNext()) {
             if (!this.graph.containsKey(it.next().getKey())) {
                 it.remove();
@@ -139,12 +113,7 @@ public class GraphDB {
      * @return An iterable of the ids of the neighbors of v.
      */
     public Iterable<Long> adjacent(long v) {
-        ArrayList<Edge> adjEdges = graph.get(v);
-        ArrayList<Long> adjNodesId = new ArrayList<>();
-
-        for (Edge e : adjEdges) adjNodesId.add(e.dest);
-
-        return adjNodesId;
+        return new ArrayList<>(graph.get(v));
     }
 
     /**
@@ -261,14 +230,14 @@ public class GraphDB {
      * @param destNode the id of the Node to which the edge extends
      * @param weight the weight (distance) of the edge
      * */
-    public void addEdge(long originNode, long destNode, double weight) {
-        Edge edge = new Edge(destNode, weight);
+    public void addAdjacency(long originNode, long destNode, double weight) {
+        
         if (!this.graph.containsKey(originNode)) {
-            ArrayList<Edge> edges = new ArrayList<>();
-            edges.add(edge);
-            this.graph.put(originNode, edges);
+            ArrayList<Long> adjacencies = new ArrayList<>();
+            adjacencies.add(destNode);
+            this.graph.put(originNode, adjacencies);
         } else {
-            this.graph.get(originNode).add(edge);
+            this.graph.get(originNode).add(destNode);
         }
     }
 }

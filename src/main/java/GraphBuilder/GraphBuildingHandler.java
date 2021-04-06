@@ -111,8 +111,8 @@ public class GraphBuildingHandler extends DefaultHandler {
             if (valid) {
                 for (int i = 0; i < way.size() - 1; i++) {
                     double weight = db.distance(way.get(i), way.get(i + 1));
-                    db.addEdge(way.get(i), way.get(i + 1), weight);
-                    db.addEdge(way.get(i + 1), way.get(i), weight);
+                    db.addAdjacency(way.get(i), way.get(i + 1), weight);
+                    db.addAdjacency(way.get(i + 1), way.get(i), weight);
                 }
             }
 
