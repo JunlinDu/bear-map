@@ -129,7 +129,8 @@ public class ArrayHeapMinPQ<I> implements ExtrinsicMinPQ<I> {
     /* Add a node */
     @Override
     public void add(I item, double priority) {
-        if (contains(item)) throw new IllegalArgumentException();
+        if (contains(item))
+            throw new IllegalArgumentException("Duplicate items are not allowed to be added");
 
         /* Adding a new node to end of the heap */
         this.minHeap.add(new Node(item, priority));
@@ -210,8 +211,11 @@ public class ArrayHeapMinPQ<I> implements ExtrinsicMinPQ<I> {
 
     }
 
-    public static void main(String[] args) {
-        System.out.println(1 / 2);
+    /* clear the min Priority Queue */
+    public void clearMinPQ() {
+        this.minHeap.subList(1, minHeap.size()).clear();
+        this.keySet.clear();
     }
+
 }
 

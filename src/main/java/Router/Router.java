@@ -14,8 +14,9 @@ import java.util.regex.Pattern;
 public class Router {
 
     private static ArrayHeapMinPQ<Long> fringe = new ArrayHeapMinPQ<Long>();
-//    private static DoubleMapPQ<Long> fringe = new DoubleMapPQ<Long>();
+
     private static Map<Long, Double> distTo = new HashMap<>();
+
     private static Map<Long, Long> edgeTo = new HashMap<>();
 
     /**
@@ -34,25 +35,13 @@ public class Router {
         Long startNode = db.closest(stlon, stlat);
         Long targetNode = db.closest(destlon, destlat);
 
+        fringe.add(startNode, 0);
         edgeTo.put(startNode, null);
         distTo.put(startNode, 0.0);
 
-        for (Long node : db.vertices()) {
-            if (!node.equals(startNode)) {
-                fringe.add(node, Double.POSITIVE_INFINITY);
-                distTo.put(node, Double.POSITIVE_INFINITY);
-            } else {
-                fringe.add(node, 0.0);
-                distTo.put(node, 0.0);
-            }
-            edgeTo.put(node, null);
-        }
-
         Long p;
 
-        while (fringe.size() != 0
-//                && !fringe.getSmallest().equals(targetNode)
-        ) {
+        while (fringe.size() != 0 && !fringe.getSmallest().equals(targetNode)) {
             p = fringe.removeSmallest();
             relaxEdgeFrom(p, db);
         }
@@ -63,7 +52,9 @@ public class Router {
     private static void relaxEdgeFrom(Long startNode, GraphDB db) {
         Iterable<Long> it = db.adjacent(startNode);
         for (Long targetNode: it) {
-            // FIXME Edge from(), to() alternative
+            if (!fringe.contains(targetNode)) fringe.add(targetNode, Double.POSITIVE_INFINITY);
+            if (!distTo.containsKey(targetNode)) distTo.put(targetNode, Double.POSITIVE_INFINITY);
+
             double weight = db.distance(startNode, targetNode);
 
             if (distTo.get(startNode) + weight < distTo.get(targetNode)) {
@@ -83,6 +74,10 @@ public class Router {
         Collections.reverse(path);
 
         return path;
+    }
+
+    private static void clean() {
+//        this.fringe.
     }
 
 
