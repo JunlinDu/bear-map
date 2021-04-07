@@ -200,11 +200,11 @@ public class GraphDB {
      * @param w The id of the second vertex.
      * @return The initial bearing between the vertices.
      */
-    double bearing(long v, long w) {
+    public double bearing(long v, long w) {
         return bearing(lon(v), lat(v), lon(w), lat(w));
     }
 
-    static double bearing(double lonV, double latV, double lonW, double latW) {
+    public static double bearing(double lonV, double latV, double lonW, double latW) {
         double phi1 = Math.toRadians(latV);
         double phi2 = Math.toRadians(latW);
         double lambda1 = Math.toRadians(lonV);
