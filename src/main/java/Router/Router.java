@@ -116,14 +116,72 @@ public class Router {
 
     /**
      * Create the list of directions corresponding to a route on the graph.
-     * @param g The graph to use.
+     * @param db The graph to use.
      * @param route The route to translate into directions. Each element
      *              corresponds to a node from the graph in the route.
      * @return A list of NavigatiionDirection objects corresponding to the input
      * route.
      */
-    public static List<NavigationDirection> routeDirections(GraphDB g, List<Long> route) {
-        return null; // FIXME
+    public static List<NavigationDirection> routeDirections(GraphDB db, List<Long> route) {
+        ArrayList<NavigationDirection> navigationDirections = new ArrayList<>();
+        double dist = 0.0;
+        Long currNode;
+        Long nextNode;
+        int dir = NavigationDirection.START;
+
+        for (int i = 0; i < route.size() - 1; i++) {
+            currNode = route.get(i);
+            nextNode = route.get(i + 1);
+
+            /* if the current node and the next node is on the same way */
+            if (db.getWayIdByNode(currNode).equals(db.getWayIdByNode(nextNode))) {
+                dist += db.distance(currNode, nextNode);
+            } else {
+                NavigationDirection nav = new NavigationDirection();
+                nav.direction = dir;
+                nav.way = db.getWayNameByNode(currNode);
+                nav.distance = dist;
+                navigationDirections.add(nav);
+
+                dir = headingDirection(route.get(i - 1), currNode, nextNode, db);
+                dist = 0.0;
+            }
+
+
+        }
+
+        return navigationDirections;
+    }
+
+    /**
+     * return the heading direction based on the relative bearing of the headed direction
+     * TODO NEED TO BE TESTED */
+    private static int headingDirection(Long prevNode, Long currNode, Long targetNode, GraphDB db) {
+        double relativeBearing = db.bearing(currNode, targetNode) - db.bearing(prevNode, currNode);
+
+        if (relativeBearing >= 0) {
+            if (relativeBearing < 15) {
+                return NavigationDirection.STRAIGHT;
+            } else if (relativeBearing < 30) {
+                return NavigationDirection.SLIGHT_RIGHT;
+            } else if (relativeBearing < 100) {
+                return NavigationDirection.RIGHT;
+            } else {
+                return NavigationDirection.SHARP_RIGHT;
+            }
+        } else if (relativeBearing < 0) {
+            if (relativeBearing > -15) {
+                return NavigationDirection.STRAIGHT;
+            } else if (relativeBearing > -30) {
+                return NavigationDirection.SLIGHT_LEFT;
+            } else if (relativeBearing > -100) {
+                return NavigationDirection.LEFT;
+            } else {
+                return NavigationDirection.SHARP_LEFT;
+            }
+        }
+
+        return -1;
     }
 
 
@@ -152,7 +210,6 @@ public class Router {
         /** Default name for an unknown way. */
         public static final String UNKNOWN_ROAD = "unknown road";
         
-        /** Static initializer. */
         static {
             DIRECTIONS[START] = "Start";
             DIRECTIONS[STRAIGHT] = "Go straight";
