@@ -288,12 +288,7 @@ public class GraphDB {
      * @param wayId the Id of the Road
      * */
     public void setNodeToWay(String nodeId, String wayId) {
-        Long ndId = Long.parseLong(nodeId);
-        Long wId = Long.parseLong(wayId);
-        Set<Long> ways = getWayIdSetByNode(ndId);
-        if (!ways.contains(wId)) {
-            nodesDict.get(ndId).addWayId(wayId);
-        }
+        nodesDict.get(Long.parseLong(nodeId)).addWayId(wayId);
     }
 
     /**
@@ -338,8 +333,7 @@ public class GraphDB {
      * @return a boolean value that indicates whether the way contains the node */
     public boolean containsNode(Long wayId, Long nodeId) {
         ArrayList<Long> nodes = this.waysDict.get(wayId).nodes;
-        for (Long nd : nodes) if (nd == nodeId) return true;
-
+        for (Long nd : nodes) if (nd.equals(nodeId)) return true;
         return false;
     }
 }
