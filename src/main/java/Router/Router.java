@@ -125,63 +125,144 @@ public class Router {
     public static List<NavigationDirection> routeDirections(GraphDB db, List<Long> route) {
         ArrayList<NavigationDirection> navigationDirections = new ArrayList<>();
         double dist = 0.0;
-        Long currNode;
-        Long nextNode;
+
+        Long currNode = route.get(0);
+        Long nextNode = route.get(1);
+
+        String wayName = identifyWayName(currNode, nextNode, db);
+
         int dir = NavigationDirection.START;
 
         for (int i = 0; i < route.size() - 1; i++) {
             currNode = route.get(i);
             nextNode = route.get(i + 1);
 
-            /* if the current node and the next node is on the same way */
-            if (db.getWayIdByNode(currNode).equals(db.getWayIdByNode(nextNode))) {
+            /* For Testing Purposes */
+//            System.out.println("Node ID: " + currNode + "  |  Lat: " + db.lat(currNode) + "  |  Lon: " + db.lon(currNode));
+//            System.out.println(Arrays.toString(db.getWayNameListByNode(currNode).toArray()));
+//            System.out.println("Name Identification: " + identifyWayName(currNode, nextNode, db) + "\n");
+
+            if (wayName.equals(identifyWayName(currNode, nextNode, db))) {
                 dist += db.distance(currNode, nextNode);
             } else {
-                NavigationDirection nav = new NavigationDirection();
-                nav.direction = dir;
-                nav.way = db.getWayNameByNode(currNode);
-                nav.distance = dist;
-                navigationDirections.add(nav);
+                navigationDirections.add(createNavigationDirection(dir, wayName, dist));
 
                 dir = headingDirection(route.get(i - 1), currNode, nextNode, db);
-                dist = 0.0;
+                dist = db.distance(currNode, nextNode);
+                wayName = identifyWayName(currNode, nextNode, db);
             }
-
-
         }
+
+        navigationDirections.add(createNavigationDirection(dir, wayName, dist));
 
         return navigationDirections;
     }
 
+    /** Create and set a new NavigationDirection Object
+     * @param direction an integer value that represents the direction of the NavigationDirection
+     * @param way a String which is the name of the way
+     * @param distance The distance of the way
+     *
+     * @return a NavigationDirection Object
+     * */
+    private static NavigationDirection createNavigationDirection(int direction, String way, double distance) {
+        NavigationDirection nav = new NavigationDirection();
+        nav.direction = direction;
+        nav.way = way;
+        nav.distance = distance;
+        return nav;
+    }
+
+    /**
+     * identify the name of way that two nodes are on
+     * (suppose that the two nodes are on the same way)
+     *  @param nodeOne Node Id of a node
+     *  @param nodeTwo Node Id of a node
+     *  @param db the database that represents the graph
+     *
+     * @return the name of the way
+     *  */
+    private static String identifyWayName(Long nodeOne, Long nodeTwo, GraphDB db) {
+        Set<String> waySetOne = db.getWayNameListByNode(nodeOne);
+        Set<String> waySetTwo = db.getWayNameListByNode(nodeTwo);
+
+        for (String wayNameOne : waySetOne) {
+            if (waySetTwo.contains(wayNameOne)) return wayNameOne;
+        }
+
+        /* Handles the corner case when the second node is the turning point in the route */
+        Iterator<String> it = waySetOne.iterator();
+        return it.next();
+    }
+
     /**
      * return the heading direction based on the relative bearing of the headed direction
-     * TODO NEED TO BE TESTED */
+     *
+     * @param prevNode the node Id of the node that comes before the current Node in the path
+     * @param currNode the node Id of the current node in the path
+     * @param targetNode the node Id the the node that the path is leading toward
+     * @param db the database that represents the graph
+     *
+     * @return an integer value which indicates a Navigation Direction
+     * FIXME: Relative Bearing does not work properly
+     * */
     private static int headingDirection(Long prevNode, Long currNode, Long targetNode, GraphDB db) {
-        double relativeBearing = db.bearing(currNode, targetNode) - db.bearing(prevNode, currNode);
+        int direction = -1;
+        double initialBearing = db.bearing(prevNode, currNode);
+        double secondBearing = db.bearing(currNode, targetNode);
+
+        if (initialBearing < 0 && secondBearing > 0) secondBearing = - (360 - secondBearing);
+
+        if (initialBearing > 0 && secondBearing < 0) {
+            secondBearing = 360 + secondBearing;
+        }
+        double relativeBearing = secondBearing - initialBearing;
+
+        /* For Testing Purposes */
+        System.out.println("***** Turning Point *****");
+        System.out.println(" **Prev -> Curr** initial bearing: " + initialBearing);
+        System.out.println(" **Curr -> Tar ** second bearing: " + secondBearing);
+        System.out.println("Relative Bearing: " + relativeBearing);
 
         if (relativeBearing >= 0) {
             if (relativeBearing < 15) {
-                return NavigationDirection.STRAIGHT;
+                direction = NavigationDirection.STRAIGHT;
             } else if (relativeBearing < 30) {
-                return NavigationDirection.SLIGHT_RIGHT;
+                direction = NavigationDirection.SLIGHT_RIGHT;
             } else if (relativeBearing < 100) {
-                return NavigationDirection.RIGHT;
+                direction = NavigationDirection.RIGHT;
             } else {
-                return NavigationDirection.SHARP_RIGHT;
+                direction = NavigationDirection.SHARP_RIGHT;
             }
         } else if (relativeBearing < 0) {
             if (relativeBearing > -15) {
-                return NavigationDirection.STRAIGHT;
+                direction = NavigationDirection.STRAIGHT;
             } else if (relativeBearing > -30) {
-                return NavigationDirection.SLIGHT_LEFT;
+                direction = NavigationDirection.SLIGHT_LEFT;
             } else if (relativeBearing > -100) {
-                return NavigationDirection.LEFT;
+                direction = NavigationDirection.LEFT;
             } else {
-                return NavigationDirection.SHARP_LEFT;
+                direction = NavigationDirection.SHARP_LEFT;
             }
         }
 
-        return -1;
+        /* For Testing Purposes */
+        System.out.println("Direction: " + NavigationDirection.DIRECTIONS[direction] + "\n\n");
+
+        return direction;
+    }
+
+    public static void main(String[] args) {
+        Set<String> a = new HashSet<String>();
+        Set<String> b = new HashSet<String>();
+
+        a.add("a");a.add("b");a.add("c");a.add("d");a.add("e");a.add("f");
+        b.add("a");b.add("b");b.add("c");b.add("d");b.add("e");
+        for (String str : a) {
+            if (b.contains(str)) {
+                System.out.println(str);
+            } else System.out.println("nope");
+        }
     }
 
 
