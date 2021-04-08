@@ -37,7 +37,7 @@ public class GraphDB {
         private double lat;
 
         /* The way to which the node belongs */
-        private ArrayList<Long> wayIds = new ArrayList<>();
+        private Set<Long> wayIds = new HashSet<>();
 
         public Node(String id, String lon, String lat) {
             this.id = Long.parseLong(id);
@@ -153,15 +153,6 @@ public class GraphDB {
      */
     public Iterable<Long> adjacent(long v) {
         return new ArrayList<>(graph.get(v));
-    }
-
-    /**
-     * Setting the way property of a node
-     * @param nodeId the Id of the Node
-     * @param wayId the Id of the Road
-     * */
-    public void setNodeToWay(String nodeId, String wayId) {
-        this.nodesDict.get(Long.parseLong(nodeId)).addWayId(wayId);
     }
 
     /**
@@ -292,6 +283,20 @@ public class GraphDB {
     }
 
     /**
+     * Setting the way property of a node
+     * @param nodeId the Id of the Node
+     * @param wayId the Id of the Road
+     * */
+    public void setNodeToWay(String nodeId, String wayId) {
+        Long ndId = Long.parseLong(nodeId);
+        Long wId = Long.parseLong(wayId);
+        Set<Long> ways = getWayIdSetByNode(ndId);
+        if (!ways.contains(wId)) {
+            nodesDict.get(ndId).addWayId(wayId);
+        }
+    }
+
+    /**
      * Adding a way to waysDict
      * @param way a way object
      * */
@@ -305,7 +310,7 @@ public class GraphDB {
      *
      * @return the Id of the way that the node belongs to
      * */
-    public ArrayList<Long> getWayIdListByNode(Long nodeId) {
+    public Set<Long> getWayIdSetByNode(Long nodeId) {
         return this.nodesDict.get(nodeId).wayIds;
     }
 
@@ -315,9 +320,9 @@ public class GraphDB {
      *
      * @return the Name of the way that the node belongs to
      * */
-    public ArrayList<String> getWayNameListByNode(Long nodeId) {
-        ArrayList<String> wayNameList = new ArrayList<>();
-        ArrayList<Long> wayIdList = this.getWayIdListByNode(nodeId);
+    public Set<String> getWayNameListByNode(Long nodeId) {
+        Set<String> wayNameList = new HashSet<>();
+        Set<Long> wayIdList = this.getWayIdSetByNode(nodeId);
         for (Long id : wayIdList) {
             wayNameList.add(this.waysDict.get(id).name);
         }
