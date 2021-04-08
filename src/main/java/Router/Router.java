@@ -209,40 +209,38 @@ public class Router {
     private static int headingDirection(Long prevNode, Long currNode, Long targetNode, GraphDB db) {
         int direction = -1;
         double initialBearing = db.bearing(prevNode, currNode);
+        if (initialBearing < 0) initialBearing = 360 + initialBearing;
         double secondBearing = db.bearing(currNode, targetNode);
+        if (secondBearing < 0) secondBearing = 360 + secondBearing;
 
-        if (initialBearing < 0 && secondBearing > 0) secondBearing = - (360 - secondBearing);
-
-        if (initialBearing > 0 && secondBearing < 0) {
-            secondBearing = 360 + secondBearing;
-        }
-        double relativeBearing = secondBearing - initialBearing;
+        double relativeBearing = initialBearing - secondBearing;
+        // FIXME
 
         /* For Testing Purposes */
-        System.out.println("***** Turning Point *****");
-        System.out.println(" **Prev -> Curr** initial bearing: " + initialBearing);
-        System.out.println(" **Curr -> Tar ** second bearing: " + secondBearing);
-        System.out.println("Relative Bearing: " + relativeBearing);
+//        System.out.println("***** Turning Point *****");
+//        System.out.println(" **Prev -> Curr** initial bearing: " + initialBearing);
+//        System.out.println(" **Curr -> Tar ** second bearing: " + secondBearing);
+//        System.out.println("Relative Bearing: " + relativeBearing);
 
         if (relativeBearing >= 0) {
             if (relativeBearing < 15) {
                 direction = NavigationDirection.STRAIGHT;
             } else if (relativeBearing < 30) {
-                direction = NavigationDirection.SLIGHT_RIGHT;
+                direction = NavigationDirection.SLIGHT_LEFT;
             } else if (relativeBearing < 100) {
-                direction = NavigationDirection.RIGHT;
+                direction = NavigationDirection.LEFT;
             } else {
-                direction = NavigationDirection.SHARP_RIGHT;
+                direction = NavigationDirection.SHARP_LEFT;
             }
         } else if (relativeBearing < 0) {
             if (relativeBearing > -15) {
                 direction = NavigationDirection.STRAIGHT;
             } else if (relativeBearing > -30) {
-                direction = NavigationDirection.SLIGHT_LEFT;
+                direction = NavigationDirection.SLIGHT_RIGHT;
             } else if (relativeBearing > -100) {
-                direction = NavigationDirection.LEFT;
+                direction = NavigationDirection.RIGHT;
             } else {
-                direction = NavigationDirection.SHARP_LEFT;
+                direction = NavigationDirection.SHARP_RIGHT;
             }
         }
 
@@ -251,20 +249,6 @@ public class Router {
 
         return direction;
     }
-
-    public static void main(String[] args) {
-        Set<String> a = new HashSet<String>();
-        Set<String> b = new HashSet<String>();
-
-        a.add("a");a.add("b");a.add("c");a.add("d");a.add("e");a.add("f");
-        b.add("a");b.add("b");b.add("c");b.add("d");b.add("e");
-        for (String str : a) {
-            if (b.contains(str)) {
-                System.out.println(str);
-            } else System.out.println("nope");
-        }
-    }
-
 
     /**
      * Class to represent a navigation direction, which consists of 3 attributes:
