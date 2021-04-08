@@ -37,8 +37,7 @@ public class GraphDB {
         private double lat;
 
         /* The way to which the node belongs */
-        private long wayId;
-
+        private ArrayList<Long> wayIds = new ArrayList<>();
 
         public Node(String id, String lon, String lat) {
             this.id = Long.parseLong(id);
@@ -58,8 +57,8 @@ public class GraphDB {
             return lat;
         }
 
-        private void setWayId(String wayId) {
-            this.wayId = Long.parseLong(wayId);
+        private void addWayId(String wayId) {
+            this.wayIds.add(Long.parseLong(wayId));
         }
     }
 
@@ -162,7 +161,7 @@ public class GraphDB {
      * @param wayId the Id of the Road
      * */
     public void setNodeToWay(String nodeId, String wayId) {
-        this.nodesDict.get(Long.parseLong(nodeId)).setWayId(wayId);
+        this.nodesDict.get(Long.parseLong(nodeId)).addWayId(wayId);
     }
 
     /**
@@ -306,8 +305,8 @@ public class GraphDB {
      *
      * @return the Id of the way that the node belongs to
      * */
-    public Long getWayIdByNode(Long nodeId) {
-        return this.nodesDict.get(nodeId).wayId;
+    public ArrayList<Long> getWayIdListByNode(Long nodeId) {
+        return this.nodesDict.get(nodeId).wayIds;
     }
 
     /**
@@ -316,8 +315,13 @@ public class GraphDB {
      *
      * @return the Name of the way that the node belongs to
      * */
-    public String getWayNameByNode(Long nodeId) {
-        return this.waysDict.get(getWayIdByNode(nodeId)).name;
+    public ArrayList<String> getWayNameListByNode(Long nodeId) {
+        ArrayList<String> wayNameList = new ArrayList<>();
+        ArrayList<Long> wayIdList = this.getWayIdListByNode(nodeId);
+        for (Long id : wayIdList) {
+            wayNameList.add(this.waysDict.get(id).name);
+        }
+        return wayNameList;
     }
 
 
