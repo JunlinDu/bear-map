@@ -1,5 +1,5 @@
 # number indicates number of different directions along path
-# PLEASE DO NOT MODIFY THIS FILE
+# 
 20
 Start on Centennial Drive and continue for 0.728 miles.
 Turn left on Stadium Rim Way and continue for 0.085 miles.
@@ -8,12 +8,12 @@ Turn right on Bancroft Way and continue for 0.023 miles.
 Turn left on Prospect Street and continue for 0.089 miles.
 Turn right on Channing Way and continue for 0.049 miles.
 Turn left on Warring Street and continue for 0.376 miles.
-Turn left on  and continue for 0.021 miles.
+Turn left on Piedmont Avenue and continue for 0.021 miles.
 Turn left on Derby Street and continue for 0.209 miles.
 Slight right on Belrose Avenue and continue for 0.123 miles.
 Go straight on Claremont Boulevard and continue for 0.167 miles.
 Slight right on Claremont Avenue and continue for 0.012 miles.
-Turn left on  and continue for 0.023 miles.
+Turn left on Stuart Street and continue for 0.023 miles.
 Slight left on Ashby Avenue and continue for 0.057 miles.
 Go straight on Tunnel Road and continue for 0.365 miles.
 Sharp left on Bridge Road and continue for 0.088 miles.
