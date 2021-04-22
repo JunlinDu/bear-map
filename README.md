@@ -1,5 +1,5 @@
 # Bear Map Project
-This project is my implementation of the backend web server for one of the proposed project from UC Berkely's CS61B, Spring 2018. It was originally inspired by the [Open Street Map](https://wiki.openstreetmap.org/wiki/Main_Page) project from where the map data was downloaded utilized. This project is an ongoing project of mine, and it is currently being developed as a hobby projec to which I will continually make optimations and refinement.
+This project is my implementation of the backend web server for one of the proposed project from UC Berkely's CS61B, Spring 2018. It was originally inspired by the [Open Street Map](https://wiki.openstreetmap.org/wiki/Main_Page) project from where the map data was downloaded utilized. This project is an ongoing project of mine, and it is currently being developed as a hobby projec to which I am continually making optimations and refinement.
 
 **Underlying Data Structres**
 | Function | Data Structure |
@@ -60,6 +60,11 @@ An industry-strength XML praser, [SAX Parser](https://docs.oracle.com/javase/tut
 
 ## Routing
 Routing take directional factors in to account to bias the dijkstra's algorithm A* Algorithm (function implemented, descriptions to be done)
+
+Bearing, relative, absolute.
+curvature of the earth.
+Driving directions.
+KD-Tree for Log time nearset node searching. Current implementation is linear time.
 
 **Routing Preview**</br>
 ![routing_sr_lr](https://github.com/JunlinDu/bear-map-project/blob/876e7513b9f72b17992914793e17e7c427d30f4e/docs/routing_sr_ls.gif)
