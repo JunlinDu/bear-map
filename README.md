@@ -43,10 +43,10 @@ The process of rasterisation is achieved by ```Rasterer.java```. Rasterer takes 
 
 | Name | Function |
 | -- | -- |
-| [Rasterer](https://github.com/JunlinDu/bear-map-project/blob/300bb9f45421a3b53eae8b6245ebd868ee6efa78/docs/rasterer_sr_ls.gif) | Performs Rasterisation |
+| [Rasterer](https://github.com/JunlinDu/bear-map-project/blob/300bb9f45421a3b53eae8b6245ebd868ee6efa78/src/main/java/Rasterer.java) | Performs Rasterisation |
 
 **Rastering result preview**</br>
-![raster_sr](https://github.com/JunlinDu/bear-map-project/blob/e5b1e5051d4a0c0443cdf099ff6b80d1a3a63d6f/docs/rasterer_sr.gif)
+![raster_sr](https://github.com/JunlinDu/bear-map-project/blob/300bb9f45421a3b53eae8b6245ebd868ee6efa78/docs/rasterer_sr_ls.gif)
 
 ## Graph Building
 Graph building builds a in-memory represention of the graph which the program can interact with and perform path-searching on. The dataset used for graph building is in the [OSM XML](https://wiki.openstreetmap.org/wiki/OSM_XML) format. The dataset contains complex real-world mapping data sets, therefore there is a portion (a few aspects, not all) of the data is utilized, which will be enough to enable major functionalities to be achieved in the project. The dataset can be downloaded from [here](https://download.bbbike.org/osm/).
