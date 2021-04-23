@@ -26,4 +26,7 @@ public interface ExtrinsicMinPQ<T> {
     /* Changes the priority of the given item. Throws NoSuchElementException if the item
      * doesn't exist. */
     void changePriority(T item, double priority);
+
+    /* Removes all elements from the heap */
+    void clearMinPQ();
 }

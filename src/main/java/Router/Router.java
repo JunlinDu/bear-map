@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  */
 public class Router {
     /* A Min Priority Queue/Min Heap used for performing path searching */
-    private static ArrayHeapMinPQ<Long> fringe = new ArrayHeapMinPQ<Long>();
+    private static ExtrinsicMinPQ<Long> fringe = new ArrayHeapMinPQ<Long>();
 
     /* Map representing the shortest distance from start node to the target node */
     private static Map<Long, Double> distTo = new HashMap<>();
