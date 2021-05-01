@@ -28,6 +28,7 @@ public class GraphBuildingHandler extends DefaultHandler {
     private final GraphDB db;
     private String wayId;
     private String wayName;
+    private String currentNodeId;
     private ArrayList<String> way = new ArrayList<>();
     private boolean valid = false;
 
@@ -58,8 +59,10 @@ public class GraphBuildingHandler extends DefaultHandler {
         if (qName.equals("node")) {
             /* A <node .../> is encountered */
             activeState = "node";
+            currentNodeId = attributes.getValue("id");
+
             GraphDB.Node newNode = new GraphDB.Node
-                    (attributes.getValue("id"), attributes.getValue("lon"), attributes.getValue("lat"));
+                    (currentNodeId, attributes.getValue("lon"), attributes.getValue("lat"));
             db.addNode(newNode);
 
         } else if (qName.equals("way")) {
@@ -83,9 +86,11 @@ public class GraphBuildingHandler extends DefaultHandler {
         } else if (activeState.equals("node") && qName.equals("tag") && attributes.getValue("k")
                 .equals("name")) {
             /* <tag ... /> with k="name" is encountered as a child element of <node> ... </node> . */
-            /* TODO Create a location. Remember which node is this tag belongs to */
+            String nodeName = attributes.getValue("v");
 
-//            System.out.println("Node's name: " + attributes.getValue("v"));
+            db.addLowerToOriginalMapping(nodeName);
+            db.addToNamesDict(nodeName.toLowerCase(), currentNodeId);
+            db.addToTrie(nodeName.toLowerCase());
         }
     }
 

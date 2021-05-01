@@ -1,5 +1,7 @@
 package GraphBuilder;
 
+import AutoCompleteUtils.Trie;
+import AutoCompleteUtils.TrieSet;
 import org.xml.sax.SAXException;
 
 import java.io.File;
@@ -18,12 +20,19 @@ public class GraphDB {
 
     // An adjacency list(map) that represents the graph
     private Map<Long, ArrayList<Long>> graph = new HashMap<>();
-
     // HashMap, serves for fast lookup operation, that maps node ids to corresponding nodes
     private Map<Long, Node> nodesDict = new HashMap<>();
-
     // way
     private Map<Long, Way> waysDict = new HashMap<>();
+
+    // TODO Refactor the  code so that less memory is used
+    // hashmap for name - node lookup
+    private Map<String, ArrayList<Long>> namesDict = new HashMap<>();
+    // map for lowercase - original mapping
+    private Map<String, String> loToOrigin = new HashMap<>();
+    // Retrieval tree for storing node name
+    private TrieSet nodeNamesTrie = new Trie();
+
 
     /**
      * Inner class that represents a node on the map.
@@ -324,7 +333,6 @@ public class GraphDB {
         return wayNameList;
     }
 
-
     /**
      * check if a way contains a node
      * @param wayId the Id of a way
@@ -335,5 +343,45 @@ public class GraphDB {
         ArrayList<Long> nodes = this.waysDict.get(wayId).nodes;
         for (Long nd : nodes) if (nd.equals(nodeId)) return true;
         return false;
+    }
+
+    /**
+     * map node names (string) to node id(s)
+     * @param name name of the node
+     * @param id node id*/
+    public void addToNamesDict(String name, String id) {
+        Long nodeId = Long.parseLong(id);
+        if (!this.namesDict.containsKey(name)) {
+            ArrayList<Long> nodes = new ArrayList<>();
+            nodes.add(nodeId);
+            namesDict.put(name, nodes);
+        }  else {
+            this.namesDict.get(name).add(nodeId);
+        }
+    }
+
+    /**
+     * adding names to the trie set
+     * @param name name of a node
+     * */
+    public void addToTrie(String name) {
+        this.nodeNamesTrie.add(name);
+    }
+
+    /**
+     * adding lower-cased version to original name mapping
+     * @param original original string*/
+    public void addLowerToOriginalMapping(String original) {
+        this.loToOrigin.put(original.toLowerCase(), original);
+    }
+
+    /**/
+    public List<String> getKeysByPrefix(String prefix) {
+        ArrayList<String> lowercasedNameList = (ArrayList<String>) this.nodeNamesTrie.keysWithPrefix(prefix);
+        ArrayList<String> originalNameList = new ArrayList<>();
+        for (String lrStr : lowercasedNameList) {
+            originalNameList.add(this.loToOrigin.get(lrStr));
+        }
+        return originalNameList;
     }
 }
