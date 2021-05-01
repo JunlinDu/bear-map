@@ -9,9 +9,7 @@ This project is my implementation of the backend web server for one of the propo
 | [Map Rastering](#Rasterisation) | None, pure math </br>Alternative: Quad-tree Implementation, optimized for vectored graph (**to be implemented**) |
 | [Graph Building](#Graph-Building) | HashMap |
 | [Routing](#Routing) | Heap (Min Priority Queue)</br>HashMap </br>KD-Tree: Log time Node search (**to be implemented, currently linear time**)|
-| [Auto Complete](#Auto-Complete) | Trie (Retrieval Tree)</br>HashMap |
-
-</br>
+| [Auto Complete & Searching](#Auto-Complete) | Trie (Retrieval Tree)</br>HashMap</br>Priority Queue |
 
 ## File Structures
 
@@ -42,10 +40,10 @@ bear-map
 
 ## Running the Application Locally
 
-| Prerequisites |
+| Requirements |
 | --|
-| JDK 1.8 or above |
-| Apache Maven 3.3+ |
+| [JDK 1.8 or above](https://www.oracle.com/au/java/technologies/javase-downloads.html) |
+| [Apache Maven 3.3+](https://maven.apache.org/download.cgi) |
 </br>
 
 * Download the [project](https://github.com/JunlinDu/bear-map.git) and the [project dataset](https://github.com/JunlinDu/bear-map-presist-data.git), place them into a directory structured as indicated below:
@@ -70,11 +68,10 @@ mvn exec:java -Dexec.mainClass="MapServer"
 
 * Once the server has started, open your web browser and access port 4567 on localhost by typing in ```localhost:4567``` to the browser.
 
-</br></br>
-
 ## Rasterisation
 
-The process of rasterisation is achieved by ```Rasterer.java```. Rasterer takes the user's request from the browser, which requests a region of the world, and constructs from a group of small images a large image that covers the region that is apporiate to what is being requested. It is also the rasterer's resposibility to provide an image that covers correct distance per pixel (LonDPP) to satisfy the user's visual demand when viewed from a certian zoom level.
+Rasterisation is essentially what allows the visual information (pictures) to be presented to the user, so that users can see the map, and are able to navigate around, zoom in and zoom out on the map. </br>
+The process of rasterisation is achieved by ```Rasterer.java```. Rasterer takes the user's request from the browser, which requests a certian region of the world, and constructs from a group of small images a large image that covers the region that is apporiate to what is being requested. It is also the rasterer's resposibility to provide an image that covers correct distance per pixel (LonDPP) to satisfy the user's visual demand when viewed from a certian zoom level.
 
 | Name | Function |
 | -- | -- |
@@ -85,7 +82,7 @@ The process of rasterisation is achieved by ```Rasterer.java```. Rasterer takes 
 
 ## Graph Building
 
-Graph building builds a in-memory represention of the graph which the program can interact with and perform path-searching on. The dataset used for graph building is in the [OSM XML](https://wiki.openstreetmap.org/wiki/OSM_XML) format. The OSM XML dataset contains large, complex real-world mapping data, most of which (not all) are utilized, which are enough to enable major functionalities to be achieved in this project. </br>
+Graph building builds a in-memory represention of the graph which allows me as a programmer being able to interact with and manipulate the map. This serves as the foundation for features such as routing and searching. The dataset used for graph building is in the [OSM XML](https://wiki.openstreetmap.org/wiki/OSM_XML) format. The OSM XML dataset contains large, complex real-world mapping data, most of which (not all) are utilized, which are enough to enable major functionalities to be achieved in this project. </br>
 
 An industry-strength XML praser, [SAX Parser](https://docs.oracle.com/javase/tutorial/jaxp/sax/parsing.html), is used in the application for parsing the XML file. Below are key XML tags in the XML file:
 | Name | Description |
@@ -100,25 +97,49 @@ Since the OpenStreetMap OSM XML dataset is not 100% accurate in terms of marking
 | Name | Function |
 | -- | -- |
 | [GraphBuildingHandler](src/main/java/GraphBuilder/GraphBuildingHandler.java) | Prase the OSM XML file and load the presistent data into memory |
-| [GraphDB](src/main/java/GraphBuilder/GraphDB.java) | The in-memory representation of the graph represneting the map |
+| [GraphDB](src/main/java/GraphBuilder/GraphDB.java) | The in-memory representation of the graph represneting the map, used for routing and auto complete |
 
 ## Routing
 
-Routing take directional factors in to account to bias the dijkstra's algorithm A* Algorithm (function implemented, descriptions to be done)
+Routing allows users to find the best route between two points on the map. Users can click on the map to set a starting point, and then click on another point to set an endpoint, which will trigger the formation of the shortest path, highlighted in blue, between these two points. </br>
+Routing takes directional factors in to account to bias the dijkstra's algorithm (i.e. A* Algorithm) to allow better performance. This is to address the problems with dijkstra's algorithm when working with real-world mapping dataset. Although dijkstra's algorithm is guaranteed to give a "perfect" path every time when routing is performed by looking at each node, when such operation is performed on two points that encompass a larger geographical area, the amount of nodes need to be examined is potentially very large, cosuming great amount computing resources. </br>
+Taking directional factors in to account can drastically decrease the amount of nodes that need to be exmained thus significanlly improves the performance. For example, when the two points form a vector which points eastward, nodes on the east side will be given higher priorities, so that the Djikstra's algorithm is biased towards east. While this change might sometimes reuslt in a path that is not the shortest possible path between two given points, the drastic difference in routing time and a "good enough" path are usually what real-world users need.
 
-Bearing, relative, absolute, curvature of the earth. </br>
-Driving directions. </br>
-To be implemented: KD-Tree for Log time nearset node searching. Current implementation is linear time. </br>
+**Things to be implemented:**
+
+* Currently when the user clicks on a point on the map, the map holding all the nodes will be traversed to retrieve the nearest node from the requested point. This takes linear time. I am thinking of using KD-Tree to store the graph for log time nearset node searching.</br>
+
+| Name | Function |
+| -- | -- |
+| [Router](src/main/java/Router/Router.java) | Performs routing and providing driving directions |
+| [ArrayHeapMinPQ](src/main/java/Router/ArrayHeapMinPQ.java) | The Min Priority Queue used for performing A* algorithm, and used for auto complete optimization |
+| [ExtrinsicMinPQ](src/main/java/Router/ExtrinsicMinPQ.java) | Interface of the min Priority Queue |
 
 **Routing Preview**</br>
 ![routing_sr_ls](docs/routing_sr_ls.gif)
 
 **Driving Directions Preview**</br>
+The application will also give a driving direction based on the shortest path given by the router.</br>
+**Fix:** Driving direction tests has not fully passed, need to use vector to determine the turning direction.
+
+![routing_dd_lr](docs/routing_dd_lr.gif)
 
 ## Auto Complete
 
-Underlying data structures have been implemented. Feature to be implemented.
+The Auto Complete feature is similar to that of Google's input bar, which will give the user a list of suggestions based on what they typed in the input field. The underlying data structure used for this feature is a retrieval tree (Trie), which is commonly used for fast string prefix matching. </b>
+The problem with a generic Trie is that in the real world, if the user inputs a short string, for example, "ca", the number of strings mathed with this prefixed will be too big to process (potentially billions). Therefore the generic Trie needs to be modified for it to be able to produce a list of "best results" of apporiate size.
+
+**Things to be implemented:**
+
+* Searching of nodes.
+* As mentioned in issue #7
+
+| Name | Function |
+| -- | -- |
+| [Trie](src/main/java/AutoCompleteUtils/Trie.java) | The Retrieval tree, used for string prefix maching |
+| [TrieSet](src/main/java/AutoCompleteUtils/TrieSet.java) | The interface of the retrieval tree |
 
 **Auto Complete Preview**</br>
+![autocomplete_ac_lr](docs/autocomplete_ac_lr.gif)
 
 ## Deployment
