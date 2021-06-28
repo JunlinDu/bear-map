@@ -98,6 +98,7 @@ public class Trie implements TrieSet {
     }
 
     private List<String> keysWithPrefixRecursive (Node node, List<String> list, String prefix) {
+        if (node == null) return null;
         if (node.mapToChildren.isEmpty() && node.endNode) {
             list.add(prefix + node.getLetter());
             return list;
