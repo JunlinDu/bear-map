@@ -60,4 +60,9 @@ public class TestTrieSet {
         assertEquals(25, graph.getKeysByPrefix("univer").size());
     }
 
+    @Test
+    public void testNoMatch() {
+        assertEquals(0, graph.getKeysByPrefix("zzzzz").size());
+    }
+
 }

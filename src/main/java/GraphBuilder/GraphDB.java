@@ -375,11 +375,19 @@ public class GraphDB {
         this.loToOrigin.put(original.toLowerCase(), original);
     }
 
-    /**/
+    /**
+     * getting original cased node names by providing prefix
+     * @param prefix the string prefix to match
+     * @return A list of node names matched by provided prefix */
     public List<String> getKeysByPrefix(String prefix) {
-        ArrayList<String> lowercasedNameList = (ArrayList<String>) this.nodeNamesTrie.keysWithPrefix(prefix);
         ArrayList<String> originalNameList = new ArrayList<>();
-        for (String lrStr : lowercasedNameList) {
+
+        // Search in the retrieval tree for matches
+        ArrayList<String> lowercaseNameList = (ArrayList<String>) this.nodeNamesTrie.keysWithPrefix(prefix);
+
+        if(lowercaseNameList == null) return originalNameList;
+
+        for (String lrStr : lowercaseNameList) {
             originalNameList.add(this.loToOrigin.get(lrStr));
         }
         return originalNameList;
