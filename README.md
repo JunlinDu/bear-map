@@ -1,6 +1,6 @@
 # Bear Map Project
 
-This project is my implementation of the backend web server for one of the proposed project from UC Berkely's CS61B, Spring 2018. It was originally inspired by the [Open Street Map](https://wiki.openstreetmap.org/wiki/Main_Page) project from where the map data was downloaded utilized. This project is an ongoing project of mine, and it is currently being developed as a hobby project which I am continually refactoring, and making optimations and refinements to.
+This project is my implementation of the backend web server for one of the proposed project from UC Berkely's CS61B, Spring 2018. It was originally inspired by the [Open Street Map](https://wiki.openstreetmap.org/wiki/Main_Page) project from where the map data was downloaded utilized. This project is an ongoing project of mine, and it is currently being developed as a hobby project which I am continually refactoring, and making refinements to.
 
 ## Underlying Data Structres
 
@@ -13,29 +13,52 @@ This project is my implementation of the backend web server for one of the propo
 
 ## File Structures
 
+The project structure is refactored partially in reference to the structure of CS61B 2019 project c.
+
 ```file structure
 bear-map
-├── README.md
-├── bearmap.iml
-├── pom.xml
 ├── src
 │   ├── main
-│   │   ├── java
-│   │   │   └── AutoCompleteUtils
-│   │   │       ├── Trie.java
-│   │   │       └── TrieSet.java
-│   │   ├── GraphBuilder
-│   │   │   ├── GraphBuildingHandler.java
-│   │   │   └── GraphDB.java
-│   │   ├── Router
-│   │   │   ├── ArrayHeapMinPQ.java
-│   │   │   ├── ExtrinsicMinPQ.java
-│   │   │   └── Router.java
-│   │   ├── MapServer.java
-│   │   └── Rasterer.java
-│   ├── Static ...
-│   └── test ...
-
+│   │   └── java
+│   │       ├── MapServer.java
+│   │       ├── ServerInitializer.java
+│   │       ├── controller      // Routes
+│   │       │   ├── RouteHandler.java
+│   │       │   ├── RouteHandlerBuilder.java
+│   │       │   └── impl
+│   │       │       ├── ClearRouteHandler.java
+│   │       │       ├── RasterHandler.java
+│   │       │       ├── RedirectHandler.java
+│   │       │       ├── RouterHandler.java
+│   │       │       └── SearchHandler.java
+│   │       ├── service         // Business Logics
+│   │       │   ├── GraphBuildingHandler.java
+│   │       │   ├── GraphDB.java
+│   │       │   ├── Rasterer.java
+│   │       │   └── Router.java
+│   │       └── utils           // Utility Functions
+│   │           ├── Constants.java
+│   │           ├── ImageToOutputStreamWriter.java
+│   │           ├── RouteHandlerFactory.java
+│   │           ├── TextFormatter.java
+│   │           └── dataStructures
+│   │               ├── Tuple.java
+│   │               ├── priorityQueue
+│   │               │   ├── ArrayHeapMinPQ.java
+│   │               │   └── ExtrinsicMinPQ.java
+│   │               └── trie
+│   │                   ├── Trie.java
+│   │                   └── TrieSet.java
+│   ├── static
+│   │   └── page
+│   │       ├── map.html
+│   │       ├── marker.gif
+│   │       ├── round_marker.gif
+│   │       ├── scripts
+│   │       │   └── map.js
+│   │       └── styles
+│   │           └── map.css
+...
 ```
 
 ## Running the Application Locally
@@ -43,18 +66,19 @@ bear-map
 | Requirements |
 | --|
 | [JDK 1.8 or above](https://www.oracle.com/au/java/technologies/javase-downloads.html) |
-| [Apache Maven 3.3+](https://maven.apache.org/download.cgi) |
+| [Apache Maven](https://maven.apache.org/download.cgi) |
+
 </br>
 
-* Download the [project](https://github.com/JunlinDu/bear-map.git) and the [project dataset](https://github.com/JunlinDu/bear-map-presist-data.git), place them into a directory structured as indicated below:
+* Download the [project](https://github.com/JunlinDu/bear-map.git) and the [project dataset](https://github.com/JunlinDu/library), place them into a directory structured as indicated below:
 
 ```file structure
 opt
 ├── bear-map        -- project directory
-└── library-sp18    -- dataset directory
+└── library         -- dataset directory
 ```
 
-* From the command line, ```cd``` to the project root folder ```/bear-map```, and compile the project
+* From the command line, ```cd``` into the project root folder ```/bear-map```, and compile the project
 
 ```shell
 mvn compile
@@ -70,12 +94,12 @@ mvn exec:java -Dexec.mainClass="MapServer"
 
 ## Rasterisation
 
-Rasterisation is essentially what allows the visual information (pictures) to be presented to the user, so that users can see the map, and are able to navigate around, zoom in and zoom out on the map. </br>
-The process of rasterisation is achieved by ```Rasterer.java```. Rasterer takes the user's request from the browser, which requests a certian region of the world, and constructs from a group of small images a large image that covers the region that is apporiate to what is being requested. It is also the rasterer's resposibility to provide an image that covers correct distance per pixel (LonDPP) to satisfy the user's visual demand when viewed from a certian zoom level.
+Rasterisation is essentially what allows the visual information (images) to be presented to the user, so that users can see the map, and are able to navigate around, zoom in and zoom out on the map. </br>
+The process of rasterisation is achieved by ```service.Rasterer.java```. service.Rasterer takes the user's request from the browser, which requests a certian region of the world, and constructs from a group of small images a large image that covers the region that is apporiate to what is being requested. It is also the rasterer's resposibility to provide an image that covers correct distance per pixel (LonDPP) to satisfy the user's visual demand when viewed from a certian zoom level.
 
 | Name | Function |
 | -- | -- |
-| [Rasterer](src/main/java/Rasterer.java) | Performs Rasterisation |
+| [Rasterer](src/main/java/service/Rasterer.java) | Performs Rasterisation |
 
 **Rastering result preview**</br>
 ![raster_sr](docs/rasterer_sr_ls.gif)
@@ -96,8 +120,8 @@ Since the OpenStreetMap OSM XML dataset is not 100% accurate in terms of marking
 
 | Name | Function |
 | -- | -- |
-| [GraphBuildingHandler](src/main/java/GraphBuilder/GraphBuildingHandler.java) | Prase the OSM XML file and load the presistent data into memory |
-| [GraphDB](src/main/java/GraphBuilder/GraphDB.java) | The in-memory representation of the graph represneting the map, used for routing and auto complete |
+| [GraphBuildingHandler](src/main/java/service/GraphBuildingHandler.java) | Prase the OSM XML file and load the presistent data into memory |
+| [GraphDB](src/main/java/service/GraphDB.java) | The in-memory representation of the graph represneting the map, used for routing and auto complete |
 
 ## Routing
 
@@ -111,9 +135,9 @@ Taking directional factors in to account can drastically decrease the amount of 
 
 | Name | Function |
 | -- | -- |
-| [Router](src/main/java/Router/Router.java) | Performs routing and providing driving directions |
-| [ArrayHeapMinPQ](src/main/java/Router/ArrayHeapMinPQ.java) | The Min Priority Queue used for performing A* algorithm, and used for auto complete optimization |
-| [ExtrinsicMinPQ](src/main/java/Router/ExtrinsicMinPQ.java) | Interface of the min Priority Queue |
+| [Router](src/main/java/service/Router.java) | Performs routing and providing driving directions |
+| [ArrayHeapMinPQ](src/main/java/utils/dataStructures/priorityQueue/ArrayHeapMinPQ.java) | The Min Priority Queue used for performing A* algorithm, and used for auto complete optimization |
+| [ExtrinsicMinPQ](src/main/java/utils/dataStructures/priorityQueue/ExtrinsicMinPQ.java) | Interface of the min Priority Queue |
 
 **Routing Preview**</br>
 ![routing_sr_ls](docs/routing_sr_ls.gif)
@@ -131,13 +155,13 @@ The problem with a generic Trie is that in the real world, if the user inputs a 
 
 **Things to be implemented:**
 
-* Searching of nodes.
-* As mentioned in issue #7
+- [ ] Searching of nodes.
+- [ ] As mentioned in issue #7
 
 | Name | Function |
 | -- | -- |
-| [Trie](src/main/java/AutoCompleteUtils/Trie.java) | The Retrieval tree, used for string prefix maching |
-| [TrieSet](src/main/java/AutoCompleteUtils/TrieSet.java) | The interface of the retrieval tree |
+| [Trie](src/main/java/utils/dataStructures/trie/Trie.java) | The Retrieval tree, used for string prefix maching |
+| [TrieSet](src/main/java/utils/dataStructures/trie/TrieSet.java) | The interface of the retrieval tree |
 
 **Auto Complete Preview**</br>
 ![autocomplete_ac_lr](docs/autocomplete_ac_lr.gif)
