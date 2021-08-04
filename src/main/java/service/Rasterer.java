@@ -1,16 +1,19 @@
+package service;
+
+import utils.Constants;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
 import java.lang.Math;
 
 /**
- * This class provides all code necessary to take a query box and produce
- * a query result.
+ * This class provides all code necessary to take a query box and produce a query result.
  * @author Junlin Du
  */
 public class Rasterer {
-    private static final double LONCOVERAGE = MapServer.ROOT_LRLON - MapServer.ROOT_ULLON;
-    private static final double LATCOVERAGE = MapServer.ROOT_ULLAT - MapServer.ROOT_LRLAT;
+    private static final double LONCOVERAGE = Constants.ROOT_LRLON - Constants.ROOT_ULLON;
+    private static final double LATCOVERAGE = Constants.ROOT_ULLAT - Constants.ROOT_LRLAT;
     private double[] tileLonCoverage;
     private double[] tileLatCoverage;
 
@@ -28,7 +31,7 @@ public class Rasterer {
 
         // calculates and initiates an array list for the LonDPP of 8 levels of zoom
         for (int i = 0, l = 1; i < 8; i++, l*=2) {
-            zoomLevelLonDPPs.add(LONCOVERAGE / (l * MapServer.TILE_SIZE));
+            zoomLevelLonDPPs.add(LONCOVERAGE / (l * Constants.TILE_SIZE));
             tileLonCoverage[i] = LONCOVERAGE / l;
             tileLatCoverage[i] = LATCOVERAGE / l;
         }
@@ -170,9 +173,9 @@ public class Rasterer {
 
         return new double[]{
                 searchSingleDimCoord
-                        (depth, longitude, MapServer.ROOT_ULLON, MapServer.ROOT_LRLON),
+                        (depth, longitude, Constants.ROOT_ULLON, Constants.ROOT_LRLON),
                 searchSingleDimCoord
-                        (depth, latitude, MapServer.ROOT_LRLAT, MapServer.ROOT_ULLAT)
+                        (depth, latitude, Constants.ROOT_LRLAT, Constants.ROOT_ULLAT)
                         + this.tileLatCoverage[depth]};
     }
 
@@ -190,8 +193,8 @@ public class Rasterer {
     private int[] identifyFileNum(int depth, double tileUlLon, double tileUlLat) {
         int x = 0, y = 0;
         double numOfTiles = Math.pow(2, depth);
-        double longDisFromBound = tileUlLon - MapServer.ROOT_ULLON;
-        double latDisFromBound = MapServer.ROOT_ULLAT - tileUlLat;
+        double longDisFromBound = tileUlLon - Constants.ROOT_ULLON;
+        double latDisFromBound = Constants.ROOT_ULLAT - tileUlLat;
 
         if (longDisFromBound != 0) x = (int) Math.round((longDisFromBound / LONCOVERAGE) * numOfTiles);
         if (latDisFromBound != 0) y = (int) Math.round((latDisFromBound / LATCOVERAGE) * numOfTiles);

@@ -4,11 +4,9 @@ import controller.RouteHandler;
 import utils.Constants;
 import spark.Request;
 import spark.Response;
-import utils.ImageToOutputStreamWriter;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.Map;
 
 import static utils.Constants.rasterer;
@@ -38,6 +36,4 @@ public class RasterHandler extends RouteHandler<Map<String, Double>, Map<String,
 
         return super.buildJsonResponse(stringObjectMap);
     }
-
-
 }
