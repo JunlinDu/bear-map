@@ -1,13 +1,12 @@
 package controller.impl;
 
-import Router.Router;
+import service.Router;
 import controller.RouteHandler;
 import spark.Request;
 import spark.Response;
 import utils.Constants;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static utils.TextFormatter.getDirectionsText;

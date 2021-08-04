@@ -1,7 +1,7 @@
 package utils;
 
 import GraphBuilder.GraphDB;
-import Router.Router;
+import service.Router;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package Router;
+package utils.dataStructures.priorityQueue;
 
 /**
  * Priority queue where objects have a priority that is provided

@@ -1,4 +1,4 @@
-import Router.ArrayHeapMinPQ;
+import utils.dataStructures.priorityQueue.ArrayHeapMinPQ;
 import org.junit.Before;
 import org.junit.Test;
 

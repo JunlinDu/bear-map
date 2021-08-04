@@ -1,4 +1,4 @@
-package Router;
+package utils.dataStructures.priorityQueue;
 
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
