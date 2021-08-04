@@ -21,6 +21,8 @@ public class RouterHandler extends RouteHandler<Map<String, Double>, Map<String,
 
     @Override
     protected Map<String, Object> processRequest(Map<String, Double> params, Response res) {
+        ROUTES.clear();
+
         ROUTES.addAll(Router.shortestPath(graph,
                         params.get("start_lon"),
                         params.get("start_lat"),
