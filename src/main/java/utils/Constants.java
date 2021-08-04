@@ -26,7 +26,7 @@ public class Constants {
      * The OSM XML file path. Downloaded from <a href="http://download.bbbike.org/osm/">here</a>
      * using custom region selection.
      **/
-    public static final String OSM_DB_PATH = "../library-sp18/data/graph/berkeley-2018.osm.xml";
+    public static final String OSM_DB_PATH = "../library/data/graph/berkeley-2018.osm.xml";
 
     /** Each tile is 256x256 pixels. */
     public static final int TILE_SIZE = 256;

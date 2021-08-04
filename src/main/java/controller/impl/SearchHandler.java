@@ -10,7 +10,7 @@ import java.util.Set;
 
 import static utils.Constants.graph;
 
-public class SearchRouteHandler extends RouteHandler<Tuple<Set<String>, String>, Object>
+public class SearchHandler extends RouteHandler<Tuple<Set<String>, String>, Object>
 {
     @Override
     protected Tuple<Set<String>, String> parseRequestParams(Request req) {
