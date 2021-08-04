@@ -1,8 +1,10 @@
-package service;
+package utils;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+import service.GraphDB;
+import service.Searcher;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -88,9 +90,11 @@ public class GraphBuildingHandler extends DefaultHandler {
             /* <tag ... /> with k="name" is encountered as a child element of <node> ... </node> . */
             String nodeName = attributes.getValue("v");
 
-            db.addLowerToOriginalMapping(nodeName);
-            db.addToNamesDict(nodeName.toLowerCase(), currentNodeId);
-            db.addToTrie(nodeName.toLowerCase());
+            Searcher searcher = db.getSearcher();
+
+            searcher.addLowerToOriginalMapping(nodeName);
+            searcher.addToNamesDict(nodeName.toLowerCase(), currentNodeId);
+            searcher.addToTrie(nodeName.toLowerCase());
         }
     }
 

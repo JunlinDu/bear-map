@@ -53,13 +53,13 @@ public class TestTrieSet {
 
     @Test
     public void testGetKeysByPrefix() {
-        System.out.println(graph.getKeysByPrefix("univer"));
-        assertEquals(25, graph.getKeysByPrefix("univer").size());
+        System.out.println(graph.getSearcher().getKeysByPrefix("univer"));
+        assertEquals(25, graph.getSearcher().getKeysByPrefix("univer").size());
     }
 
     @Test
     public void testNoMatch() {
-        assertEquals(0, graph.getKeysByPrefix("zzzzz").size());
+        assertEquals(0, graph.getSearcher().getKeysByPrefix("zzzzz").size());
     }
 
 }

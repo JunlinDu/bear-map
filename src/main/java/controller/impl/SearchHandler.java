@@ -23,8 +23,9 @@ public class SearchHandler extends RouteHandler<Tuple<Set<String>, String>, Obje
         String term = params.second;
 
         /* Search for actual location data. */
-        if (reqParams.contains("full")) return null; // TODO To Be Implemented
+        if (reqParams.contains("full")) return graph.getSearcher().getLocations(term);
+
         /* Search for prefix matching strings. */
-        return graph.getKeysByPrefix(term);
+        return graph.getSearcher().getKeysByPrefix(term);
     }
 }
