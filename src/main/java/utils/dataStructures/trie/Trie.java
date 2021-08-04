@@ -46,7 +46,7 @@ public class Trie implements TrieSet {
         sentinel = new Node(null, false);
     }
 
-    /* Clears all items out of utils.dataStructures.Trie */
+    /* Clears all items out of Trie */
     @Override
     public void clear() {
         sentinel = new Node(null, false);
@@ -63,7 +63,7 @@ public class Trie implements TrieSet {
         return curr;
     }
 
-    /* Returns true if the utils.dataStructures.Trie contains KEY, false otherwise */
+    /* Returns true if the Trie contains KEY, false otherwise */
     @Override
     public boolean contains(String key) {
         if (key == null || key.length() < 1)
@@ -73,7 +73,7 @@ public class Trie implements TrieSet {
         return node != null && node.endNode;
     }
 
-    /** Inserts string KEY into utils.dataStructures.Trie */
+    /** Inserts string KEY into Trie */
     @Override
     public void add(String key) {
         if (key == null || key.length() < 1) return;
@@ -113,7 +113,7 @@ public class Trie implements TrieSet {
         return list;
     }
 
-    /** Returns the longest prefix of KEY that exists in the utils.dataStructures.Trie */
+    /** Returns the longest prefix of KEY that exists in the Trie */
     @Override
     public String longestPrefixOf(String key) {
         throw new UnsupportedOperationException();

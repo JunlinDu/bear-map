@@ -1,5 +1,5 @@
-import AutoCompleteUtils.Trie;
-import AutoCompleteUtils.TrieSet;
+import utils.dataStructures.trie.Trie;
+import utils.dataStructures.trie.TrieSet;
 import service.GraphDB;
 import org.junit.Before;
 import org.junit.Test;
