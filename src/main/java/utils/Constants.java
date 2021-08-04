@@ -1,6 +1,6 @@
 package utils;
 
-import GraphBuilder.GraphDB;
+import service.GraphDB;
 import service.Rasterer;
 
 import java.awt.*;

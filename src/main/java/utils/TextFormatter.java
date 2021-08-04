@@ -1,6 +1,6 @@
 package utils;
 
-import GraphBuilder.GraphDB;
+import service.GraphDB;
 import service.Router;
 
 import java.util.List;

@@ -1,15 +1,12 @@
 import AutoCompleteUtils.Trie;
 import AutoCompleteUtils.TrieSet;
-import GraphBuilder.GraphDB;
+import service.GraphDB;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 

@@ -1,7 +1,7 @@
-package service.graphBuilder;
+package service;
 
-import utils.dataStructures.trie.Trie;
-import utils.dataStructures.trie.TrieSet;
+import AutoCompleteUtils.Trie;
+import AutoCompleteUtils.TrieSet;
 import org.xml.sax.SAXException;
 
 import java.io.File;

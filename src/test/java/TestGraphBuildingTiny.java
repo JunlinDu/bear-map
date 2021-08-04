@@ -1,4 +1,4 @@
-import GraphBuilder.GraphDB;
+import service.GraphDB;
 import org.junit.Before;
 import org.junit.Test;
 
