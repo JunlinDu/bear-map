@@ -32,7 +32,6 @@ public class Rasterer {
             tileLonCoverage[i] = LONCOVERAGE / l;
             tileLatCoverage[i] = LATCOVERAGE / l;
         }
-        System.out.println(zoomLevelLonDPPs);
     }
 
 
@@ -52,10 +51,6 @@ public class Rasterer {
      * "query_success" : Boolean, whether the query was able to successfully complete <br>
      */
     public Map<String, Object> getMapRaster(Map<String, Double> params) {
-        return constructResult(params);
-    }
-
-    private Map<String, Object> constructResult(Map<String, Double> params) {
         Map<String, Object> results = new HashMap<>();
 
         int depth = calcDepth((params.get("lrlon") - params.get("ullon"))/ params.get("w"));
@@ -64,7 +59,7 @@ public class Rasterer {
         double[] lRTileULCoor = calcTileULCoor(depth, params.get("lrlon"), params.get("lrlat"));
         double[] lRTileLRCoor = new double[]
                 {lRTileULCoor[0] + this.tileLonCoverage[depth],
-                lRTileULCoor[1] - this.tileLatCoverage[depth]};
+                        lRTileULCoor[1] - this.tileLatCoverage[depth]};
 
         results.put("raster_ul_lon", uLTileULCoor[0]);
         results.put("depth", depth);
@@ -76,7 +71,6 @@ public class Rasterer {
 
         return results;
     }
-
 
     /** This function takes the current depth/level of zoom and two edge tile coordinates and
      * returns a two-dimensional array of Strings representing the tile files to be retrieved

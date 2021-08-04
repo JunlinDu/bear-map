@@ -14,11 +14,14 @@ import static spark.Spark.halt;
  * The base class that defines the handling of a http request
  * API Docs for Route can be found
  * <a href="https://javadoc.io/doc/com.sparkjava/spark-core/latest/spark/Route.html">here</a>
+ *
  * @author Rahul, Junlin Du
- * */
+ */
 public abstract class RouteHandler<Req, Res> implements Route {
 
-    /** HTTP invalid request response. */
+    /**
+     * HTTP invalid request response.
+     */
     private static final int HALT_RESPONSE = 400;
 
     private Gson gson;
@@ -36,30 +39,33 @@ public abstract class RouteHandler<Req, Res> implements Route {
 
     /**
      * Defines how to parse and extract the request parameters from request
-     * @param request  the request object
-     * @return  extracted request parameters
+     *
+     * @param req the request object
+     * @return extracted request parameters
      */
-    protected abstract Req parseRequestParams(Request request);
+    protected abstract Req parseRequestParams(Request req);
 
     /**
      * Process the request using the given parameters
-     * @param requestParams request parameters
-     * @param response  response object
-     * @return  the result computed after processing request
+     *
+     * @param params request parameters
+     * @param res    response object
+     * @return the result computed after processing request
      */
-    protected abstract Res processRequest(Req requestParams, Response response);
+    protected abstract Res processRequest(Req params, Response res);
 
     /**
      * Builds a JSON response to return from the result object
      */
-    protected  Object buildJsonResponse(Res result){
-        return gson.toJson(result);
+    protected Object buildJsonResponse(Res res) {
+        return gson.toJson(res);
     }
 
     /**
      * Validate & return a parameter map of the required request parameters.
      * Requires that all input parameters are doubles.
-     * @param req HTTP Request.
+     *
+     * @param req            HTTP Request.
      * @param requiredParams TestParams to validate.
      * @return A populated map of input parameter to it's numerical value.
      */

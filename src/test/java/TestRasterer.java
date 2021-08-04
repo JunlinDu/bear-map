@@ -1,5 +1,6 @@
 import org.junit.Before;
 import org.junit.Test;
+import service.Rasterer;
 
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -125,7 +126,7 @@ public class TestRasterer {
                        + "Actual  : " + mapToString(actual);
     }
 
-    /** Converts a Rasterer input or output map to its string representation. */
+    /** Converts a service.Rasterer input or output map to its string representation. */
     private String mapToString(Map<String, ?> m) {
         StringJoiner sj = new StringJoiner(", ", "{", "}");
 
