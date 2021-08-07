@@ -5,7 +5,7 @@ import controller.impl.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RouteHandlerBuilder {
+public class RouteHandlerFactory {
 
     public static final Map<String, RouteHandler> handlerMap;
 
