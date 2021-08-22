@@ -1,6 +1,6 @@
 # Bear Map Project
 
-This project is my implementation of the backend web server for one of the proposed project from UC Berkely's CS61B, Spring 2018. It was originally inspired by the [Open Street Map](https://wiki.openstreetmap.org/wiki/Main_Page) project from where the map data was downloaded utilized. This project is an ongoing project of mine, and it is currently being developed as a hobby project which I am continually refactoring, and making refinements to.
+This project is my implementation of the backend web server for the final project of UC Berkely's CS61B, Spring 2018. It was originally inspired by the [Open Street Map](https://wiki.openstreetmap.org/wiki/Main_Page) project from where the map data was downloaded utilized. This project is an ongoing project of mine, and it is currently being developed as a hobby project which I am continually refactoring, and making refinements to.
 
 ## Underlying Data Structres
 
@@ -78,7 +78,7 @@ opt
 └── library         -- dataset directory
 ```
 
-* From the command line, ```cd``` into the project root folder ```/bear-map```, and compile the project
+* From the command line, change the working directory to the project root directory ```/bear-map```, and compile the project
 
 ```shell
 mvn compile
@@ -109,6 +109,7 @@ The process of rasterisation is achieved by ```service.Rasterer.java```. service
 Graph building builds a in-memory represention of the graph which allows me as a programmer being able to interact with and manipulate the map. This serves as the foundation for features such as routing and searching. The dataset used for graph building is in the [OSM XML](https://wiki.openstreetmap.org/wiki/OSM_XML) format. The OSM XML dataset contains large, complex real-world mapping data, most of which (not all) are utilized, which are enough to enable major functionalities to be achieved in this project. </br>
 
 An industry-strength XML praser, [SAX Parser](https://docs.oracle.com/javase/tutorial/jaxp/sax/parsing.html), is used in the application for parsing the XML file. Below are key XML tags in the XML file:
+
 | Name | Description |
 | -- | -- |
 | [\<node>](https://wiki.openstreetmap.org/wiki/Node) | A node defines a single point in space which has an **id**, **longitude**, and **latitude**. All of which are essential for path searching. |
@@ -120,7 +121,7 @@ Since the OpenStreetMap OSM XML dataset is not 100% accurate in terms of marking
 
 | Name | Function |
 | -- | -- |
-| [GraphBuildingHandler](src/main/java/service/GraphBuildingHandler.java) | Prase the OSM XML file and load the presistent data into memory |
+| [GraphBuildingHandler](src/main/java/utils/GraphBuildingHandler.java) | Prase the OSM XML file and load the presistent data into memory |
 | [GraphDB](src/main/java/service/GraphDB.java) | The in-memory representation of the graph represneting the map, used for routing and auto complete |
 
 ## Routing
@@ -131,7 +132,7 @@ Taking directional factors in to account can drastically decrease the amount of 
 
 **Things to be implemented:**
 
-* Currently when the user clicks on a point on the map, the map holding all the nodes will be traversed to retrieve the nearest node from the requested point. This takes linear time. I am thinking of using KD-Tree to store the graph for log time nearset node searching.</br>
+- [ ] Currently when the user clicks on a point on the map, the map holding all the nodes will be traversed to retrieve the nearest node from the requested point. This takes linear time. A better solution would be using a KD-Tree to store the graph for log time nearset node searching.</br>
 
 | Name | Function |
 | -- | -- |
@@ -144,7 +145,8 @@ Taking directional factors in to account can drastically decrease the amount of 
 
 **Driving Directions Preview**</br>
 The application will also give a driving direction based on the shortest path given by the router.</br>
-**Fix:** Driving direction tests has not fully passed, need to use vector to determine the turning direction.
+
+- [ ] **Fix Required:** Driving direction tests has not fully passed, need to use vector to determine the turning direction.
 
 ![routing_dd_lr](docs/routing_dd_lr.gif)
 
