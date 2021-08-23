@@ -92,6 +92,8 @@ mvn exec:java -Dexec.mainClass="MapServer"
 
 * Once the server has started, open your web browser and access port 4567 on localhost by typing in ```localhost:4567``` to the browser.
 
+✅ Access using Chrome to have best experience. Zoom out may not work on Firefox and Safari.
+
 ## Rasterisation
 
 Rasterisation is essentially what allows the visual information (images) to be presented to the user, so that users can see the map, and are able to navigate around, zoom in and zoom out on the map. </br>
